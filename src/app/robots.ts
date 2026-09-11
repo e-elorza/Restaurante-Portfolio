@@ -1,17 +1,13 @@
 import type { MetadataRoute } from "next";
 
 import { getSeoSettings } from "@/lib/data/settings";
+import { siteUrl } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
 
 export default async function robots(): Promise<MetadataRoute.Robots> {
   const seo = await getSeoSettings();
-  const base = (
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "http://localhost:3000")
-  ).replace(/\/$/, "");
+  const base = siteUrl();
 
   if (!seo.indexable) {
     return { rules: [{ userAgent: "*", disallow: "/" }] };

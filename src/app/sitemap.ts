@@ -3,23 +3,15 @@ import type { MetadataRoute } from "next";
 import { getPages } from "@/lib/data/pages";
 import { getActiveProducts } from "@/lib/data/menu";
 import { getSeoSettings } from "@/lib/data/settings";
+import { siteUrl } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
-
-function baseUrl(): string {
-  return (
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "http://localhost:3000")
-  ).replace(/\/$/, "");
-}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const seo = await getSeoSettings();
   if (!seo.indexable) return [];
 
-  const base = baseUrl();
+  const base = siteUrl();
   const [pages, products] = await Promise.all([getPages(), getActiveProducts()]);
 
   const pageEntries: MetadataRoute.Sitemap = pages

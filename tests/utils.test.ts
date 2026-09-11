@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import type { RestaurantSettings } from "@prisma/client";
 
 import {
@@ -14,6 +14,7 @@ import { hexToRgbChannels, readableTextColor, themeStyleSheet } from "@/lib/them
 import { embedUrl, parseVideoSource } from "@/lib/video";
 import { resolveGeneralOrderLink, resolveOrderLink } from "@/lib/order";
 import { DEFAULT_APPEARANCE, DEFAULT_RESTAURANT } from "@/lib/data/defaults";
+import { siteUrl } from "@/lib/site-url";
 
 describe("slugify", () => {
   it("remove acentos e espaços", () => {
@@ -201,5 +202,37 @@ describe("link de pedido", () => {
   it("link geral usa a mensagem padrão do restaurante", () => {
     const link = resolveGeneralOrderLink(settings, true);
     expect(decodeURIComponent(link)).toContain("Vim pelo cardápio");
+  });
+});
+
+describe("endereço do site", () => {
+  const original = { ...process.env };
+
+  afterEach(() => {
+    process.env = { ...original };
+  });
+
+  it("prefere o domínio configurado pelo dono do site", () => {
+    process.env.NEXT_PUBLIC_SITE_URL = "https://meurestaurante.com.br";
+    process.env.VERCEL_PROJECT_PRODUCTION_URL = "projeto.vercel.app";
+    expect(siteUrl()).toBe("https://meurestaurante.com.br");
+  });
+
+  it("usa o domínio da Vercel quando nada foi configurado", () => {
+    delete process.env.NEXT_PUBLIC_SITE_URL;
+    process.env.VERCEL_PROJECT_PRODUCTION_URL = "projeto.vercel.app";
+    expect(siteUrl()).toBe("https://projeto.vercel.app");
+  });
+
+  it("completa o protocolo e remove a barra final", () => {
+    process.env.NEXT_PUBLIC_SITE_URL = "meurestaurante.com.br/";
+    expect(siteUrl()).toBe("https://meurestaurante.com.br");
+  });
+
+  it("cai para o localhost em desenvolvimento", () => {
+    delete process.env.NEXT_PUBLIC_SITE_URL;
+    delete process.env.VERCEL_PROJECT_PRODUCTION_URL;
+    delete process.env.VERCEL_URL;
+    expect(siteUrl()).toBe("http://localhost:3000");
   });
 });

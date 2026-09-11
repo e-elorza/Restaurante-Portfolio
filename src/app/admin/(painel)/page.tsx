@@ -12,10 +12,12 @@ import {
 import { PageHeader } from "@/components/ui/misc";
 import { Badge, EmptyState } from "@/components/ui/misc";
 import { Button } from "@/components/ui/button";
+import { DemoContentCard } from "@/components/admin/demo-content-card";
 import { getRecentActivity } from "@/lib/activity";
 import { prisma, safeQuery } from "@/lib/prisma";
 import { getPages } from "@/lib/data/pages";
 import { getRestaurantSettings } from "@/lib/data/settings";
+import { isSiteEmpty } from "@/lib/data/setup";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 
 export const metadata = { title: "Dashboard" };
@@ -44,11 +46,12 @@ async function getCounts() {
 }
 
 export default async function DashboardPage() {
-  const [counts, pages, activity, settings] = await Promise.all([
+  const [counts, pages, activity, settings, siteEmpty] = await Promise.all([
     getCounts(),
     getPages(),
     getRecentActivity(8),
     getRestaurantSettings(),
+    isSiteEmpty(),
   ]);
 
   const enabledPages = pages.filter((page) => page.enabled || page.lockedEnabled);
@@ -104,6 +107,8 @@ export default async function DashboardPage() {
           </Link>
         </Button>
       </PageHeader>
+
+      {siteEmpty ? <DemoContentCard /> : null}
 
       <section aria-label="Resumo" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map((stat) => (

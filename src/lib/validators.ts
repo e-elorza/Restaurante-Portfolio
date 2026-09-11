@@ -91,6 +91,28 @@ export const loginSchema = z.object({
   redirectTo: z.string().optional().default("/admin"),
 });
 
+/** Criação do primeiro administrador, feita pelo navegador no primeiro acesso. */
+export const firstAdminSchema = z
+  .object({
+    name: requiredText("seu nome", 80),
+    email: z
+      .string()
+      .trim()
+      .min(1, "Informe um e-mail.")
+      .email("Informe um e-mail válido."),
+    password: z
+      .string()
+      .min(
+        PASSWORD_MIN_LENGTH,
+        `A senha precisa ter pelo menos ${PASSWORD_MIN_LENGTH} caracteres.`,
+      ),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "As senhas não são iguais.",
+    path: ["confirmPassword"],
+  });
+
 export const changePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, "Informe a senha atual."),

@@ -8,12 +8,16 @@ import {
   login,
   setSessionCookie,
 } from "@/lib/auth";
-import { changePasswordSchema, loginSchema } from "@/lib/validators";
+import { changePasswordSchema, firstAdminSchema, loginSchema } from "@/lib/validators";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activity";
+import { seedAdminUser } from "@/server/demo-content";
 import { fail, fromZodError, ok } from "@/server/actions/helpers";
 import type { ActionState } from "@/lib/types";
+
+const MISSING_SECRET =
+  "O site ainda não tem a variável AUTH_SECRET configurada, então não é possível manter você conectado. Configure-a nas variáveis de ambiente e publique o site de novo.";
 
 /** Rotas do painel permitidas como destino após o login. */
 function safeRedirect(target: string): string {
@@ -37,7 +41,12 @@ export async function loginAction(
   const result = await login(parsed.data.email, parsed.data.password);
   if (!result.ok) return fail(result.error);
 
-  await setSessionCookie(result.session);
+  try {
+    await setSessionCookie(result.session);
+  } catch {
+    return fail(MISSING_SECRET);
+  }
+
   await logActivity({
     userId: result.session.userId,
     action: "login",
@@ -88,4 +97,72 @@ export async function changePasswordAction(
   });
 
   return ok("Senha alterada com sucesso.");
+}
+
+/**
+ * Cria o primeiro administrador do painel.
+ *
+ * Só funciona enquanto não existir nenhum usuário — é o fluxo de primeiro
+ * acesso logo depois de publicar o site, para ninguém precisar de linha de
+ * comando. A partir do segundo usuário, novos acessos saem de dentro do painel.
+ */
+export async function createFirstAdminAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const parsed = firstAdminSchema.safeParse({
+    name: formData.get("name"),
+    email: formData.get("email"),
+    password: formData.get("password"),
+    confirmPassword: formData.get("confirmPassword"),
+  });
+
+  if (!parsed.success) return fromZodError(parsed.error);
+
+  let total: number;
+  try {
+    total = await prisma.user.count();
+  } catch {
+    return fail(
+      "Não foi possível falar com o banco de dados. Confira a variável DATABASE_URL e publique o site de novo.",
+    );
+  }
+
+  if (total > 0) {
+    return fail(
+      "Este painel já tem um administrador. Use o formulário de login para entrar.",
+    );
+  }
+
+  const email = await seedAdminUser(prisma, {
+    email: parsed.data.email,
+    password: parsed.data.password,
+    name: parsed.data.name,
+  });
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) return fail("Não foi possível criar o acesso. Tente novamente.");
+
+  const session = {
+    userId: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+  };
+
+  try {
+    await setSessionCookie(session);
+  } catch {
+    return fail(MISSING_SECRET);
+  }
+
+  await logActivity({
+    userId: user.id,
+    action: "create",
+    entity: "user",
+    entityId: user.id,
+    message: `${user.name} criou o primeiro acesso ao painel`,
+  });
+
+  redirect("/admin");
 }

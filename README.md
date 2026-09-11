@@ -59,13 +59,10 @@ npm install
 cp .env.example .env
 #    edite o .env com a sua DATABASE_URL e um AUTH_SECRET
 
-# 3. criar as tabelas
-npm run db:deploy        # em desenvolvimento você pode usar: npm run db:migrate
+# 3. criar as tabelas e popular com conteúdo de demonstração
+npm run setup
 
-# 4. popular com conteúdo de demonstração (opcional, mas recomendado)
-npm run db:seed
-
-# 5. rodar o projeto
+# 4. rodar o projeto
 npm run dev
 ```
 
@@ -104,7 +101,8 @@ Qualquer PostgreSQL serve. Para a Vercel, as opções mais simples são:
 2. Conecte ao projeto — a Vercel injeta as variáveis automaticamente.
 3. Renomeie/aponte `DATABASE_URL` para a variável gerada (`POSTGRES_URL`).
 
-Depois de configurar, rode as migrations:
+Na Vercel as migrations são aplicadas sozinhas durante o build. Na sua máquina,
+rode uma vez:
 
 ```bash
 npm run db:deploy
@@ -114,8 +112,11 @@ npm run db:deploy
 
 ## Usuário administrador
 
-O seed já cria um administrador usando `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
-Para criar ou trocar a senha depois:
+**No site publicado você não precisa de nada disso:** a tela `/admin` oferece a
+criação do primeiro acesso enquanto não existir nenhum usuário.
+
+Na sua máquina, o `npm run setup` já cria um administrador usando
+`ADMIN_EMAIL` / `ADMIN_PASSWORD`. Para criar ou trocar a senha pelo terminal:
 
 ```bash
 npm run create:admin
@@ -163,39 +164,77 @@ tamanhos responsivos).
 
 ## Deploy na Vercel
 
-1. Suba o projeto para um repositório Git (GitHub, GitLab ou Bitbucket).
-2. Na Vercel, clique em **Add New → Project** e importe o repositório.
-3. A Vercel detecta o Next.js sozinho — não é preciso mudar o *build command*
-   (`npm run build` já executa `prisma generate` antes do build).
-4. Configure as **Environment Variables** (Production, Preview e Development):
+São **duas variáveis** e nada de linha de comando. As tabelas são criadas
+durante o build e o primeiro acesso ao painel é criado pelo navegador.
 
-   | Variável                | Obrigatória | Para que serve                              |
-   | ----------------------- | ----------- | ------------------------------------------- |
-   | `DATABASE_URL`          | sim         | Conexão com o PostgreSQL                    |
-   | `DIRECT_URL`            | não         | Conexão sem pooler, usada pelas migrations  |
-   | `AUTH_SECRET`           | sim         | Assina a sessão do painel                   |
-   | `AUTH_SESSION_DAYS`     | não         | Duração da sessão (padrão 7 dias)           |
-   | `BLOB_READ_WRITE_TOKEN` | não*        | Envio de imagens pelo painel                |
-   | `UPLOAD_MAX_MB`         | não         | Limite de tamanho de upload                 |
-   | `NEXT_PUBLIC_SITE_URL`  | recomendada | URL final do site (metadados e sitemap)     |
-   | `ADMIN_EMAIL`           | não         | Usada pelo seed e por `create:admin`        |
-   | `ADMIN_PASSWORD`        | não         | Idem                                        |
+### 1. Crie o banco de dados
 
-   \* sem ela o envio direto de arquivos fica desativado, mas o painel continua
-   funcionando com URLs externas.
+Qualquer PostgreSQL serve. O caminho mais curto é pelo próprio painel da
+Vercel: **Storage → Create Database → Postgres** (ou Neon/Supabase, veja
+[Banco de dados](#banco-de-dados)). Copie a *connection string*.
 
-5. Faça o deploy.
-6. Rode as migrations contra o banco de produção (a partir da sua máquina,
-   com o `.env` apontando para o banco de produção):
+### 2. Importe o repositório
 
-   ```bash
-   npm run db:deploy
-   npm run create:admin      # cria o acesso ao painel
-   ```
+Na Vercel: **Add New → Project**, escolha o repositório e siga. Ela detecta o
+Next.js sozinha — não mexa no *build command*.
 
-   Se quiser o conteúdo de demonstração em produção: `npm run db:seed`.
+### 3. Configure as variáveis
 
-7. Acesse `https://seu-projeto.vercel.app/admin` e faça login.
+Em **Settings → Environment Variables** (marque Production, Preview e
+Development):
+
+| Variável                | Obrigatória | Para que serve                                  |
+| ----------------------- | ----------- | ----------------------------------------------- |
+| `DATABASE_URL`          | **sim**     | Conexão com o PostgreSQL                        |
+| `AUTH_SECRET`           | **sim**     | Assina a sessão do painel                       |
+| `DIRECT_URL`            | recomendada | Conexão sem pooler, usada pelas migrations      |
+| `BLOB_READ_WRITE_TOKEN` | recomendada | Envio de imagens pelo painel                    |
+| `NEXT_PUBLIC_SITE_URL`  | ao usar domínio próprio | Metadados, OpenGraph e sitemap      |
+| `AUTH_SESSION_DAYS`     | não         | Duração da sessão (padrão 7 dias)               |
+| `UPLOAD_MAX_MB`         | não         | Limite de tamanho de upload (padrão 8 MB)       |
+
+Gere o `AUTH_SECRET` com:
+
+```bash
+openssl rand -base64 32
+```
+
+> **Neon e Supabase:** eles dão duas URLs. A com *pooler* vai em `DATABASE_URL`
+> e a direta em `DIRECT_URL` — o pooler não aceita os comandos de migration.
+
+### 4. Publique
+
+Faça o deploy. Durante o build o projeto:
+
+1. gera o Prisma Client;
+2. **aplica as migrations** (`scripts/prepare-database.mjs`);
+3. compila o Next.js.
+
+Se o banco ainda não estiver acessível, o build **não falha**: o site sobe com
+o conteúdo padrão e a tela de login explica o que falta configurar.
+
+### 5. Crie o seu acesso
+
+Abra `https://seu-projeto.vercel.app/admin`. Como ainda não existe nenhum
+usuário, a tela oferece **“Crie o seu acesso”**: informe nome, e-mail e senha.
+Pronto — você entra direto no painel.
+
+> Esse formulário só aparece enquanto não houver nenhum usuário cadastrado.
+> A partir daí, a mesma tela passa a pedir e-mail e senha.
+
+### 6. (Opcional) Carregue o conteúdo de demonstração
+
+No primeiro acesso o painel oferece o botão **“Carregar demonstração”**, que
+preenche o site com um cardápio de exemplo — categorias, produtos, fotos e a
+página inicial já montada. Serve para ver como tudo fica antes de cadastrar o
+cardápio real; depois é só editar ou apagar.
+
+### Envio de imagens
+
+Para o administrador poder enviar fotos pelo painel, crie um Blob Store em
+**Storage → Create Database → Blob** e conecte ao projeto — a Vercel cria a
+variável `BLOB_READ_WRITE_TOKEN` sozinha. Sem ela, todo campo de imagem oferece
+a opção **“Usar um endereço”** para colar a URL de uma imagem já hospedada.
 
 ---
 
@@ -224,6 +263,7 @@ tamanhos responsivos).
 | `npm run typecheck`    | TypeScript sem emitir arquivos                    |
 | `npm test`             | Testes com Vitest                                 |
 | `npm run db:migrate`   | Cria/aplica migrations em desenvolvimento         |
+| `npm run setup`        | Cria as tabelas e carrega a demonstração          |
 | `npm run db:deploy`    | Aplica migrations em produção                     |
 | `npm run db:seed`      | Popula com conteúdo de demonstração               |
 | `npm run db:studio`    | Abre o Prisma Studio                              |

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 
 import "./globals.css";
 import { getSeoSettings } from "@/lib/data/settings";
+import { siteUrl } from "@/lib/site-url";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -11,7 +12,6 @@ export const viewport: Viewport = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoSettings();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
   const keywords = seo.keywords
     .split(",")
@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
     .filter(Boolean);
 
   return {
-    ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
+    metadataBase: new URL(siteUrl()),
     title: {
       default: seo.siteTitle,
       template: seo.titleTemplate?.includes("%s") ? seo.titleTemplate : "%s",
