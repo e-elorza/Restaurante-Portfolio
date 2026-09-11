@@ -1,0 +1,453 @@
+// Cardápio Digital — modelagem de dados
+// Documentação das decisões no README.md
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum Role {
+  ADMIN
+  EDITOR
+}
+
+enum PageKey {
+  HOME
+  MENU
+  DELIVERY
+  EVENTS
+  LOCATIONS
+  CONTACT
+}
+
+enum HomeSectionType {
+  HERO
+  VIDEO
+  CATEGORIES
+  FEATURED_PRODUCTS
+  BANNER
+  ABOUT
+  GALLERY
+  DELIVERY_CTA
+  LOCATIONS
+  SOCIAL
+}
+
+enum HeroMediaType {
+  IMAGE
+  VIDEO
+  CAROUSEL
+}
+
+enum VideoProvider {
+  UPLOAD
+  YOUTUBE
+  VIMEO
+}
+
+enum ContentAlign {
+  LEFT
+  CENTER
+  RIGHT
+}
+
+enum SectionHeight {
+  COMPACT
+  MEDIUM
+  TALL
+  FULLSCREEN
+}
+
+enum ButtonStyle {
+  ROUNDED
+  PILL
+  SQUARE
+}
+
+enum CardShadow {
+  NONE
+  SOFT
+  MEDIUM
+  STRONG
+}
+
+enum CardStyle {
+  ELEVATED
+  BORDERED
+  MINIMAL
+}
+
+enum PastEventsBehavior {
+  HIDE
+  ARCHIVE
+}
+
+enum SocialNetwork {
+  INSTAGRAM
+  TIKTOK
+  FACEBOOK
+  YOUTUBE
+  X
+  WHATSAPP
+  LINKEDIN
+  THREADS
+}
+
+// ---------------------------------------------------------------------------
+// Usuários e auditoria
+// ---------------------------------------------------------------------------
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  name         String
+  passwordHash String
+  role         Role          @default(ADMIN)
+  active       Boolean       @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  activities   ActivityLog[]
+
+  @@map("users")
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  entity    String
+  entityId  String?
+  message   String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("activity_logs")
+}
+
+// ---------------------------------------------------------------------------
+// Configurações gerais (singletons)
+// ---------------------------------------------------------------------------
+
+model RestaurantSettings {
+  id             String   @id @default("default")
+  name           String   @default("Brasa & Bordo")
+  tagline        String   @default("Cozinha de fogo, alma de bairro")
+  description    String   @default("")
+  logoUrl        String?
+  faviconUrl     String?
+  phone          String?
+  whatsapp       String?
+  email          String?
+  address        String?
+  city           String?
+  currency       String   @default("BRL")
+  locale         String   @default("pt-BR")
+  timezone       String   @default("America/Sao_Paulo")
+  openingHours   String?
+  orderUrl       String?
+  orderLabel     String   @default("Pedir agora")
+  whatsappEnabled Boolean @default(true)
+  whatsappMessage String  @default("Olá! Vim pelo cardápio e gostaria de fazer um pedido.")
+  updatedAt      DateTime @updatedAt
+
+  @@map("restaurant_settings")
+}
+
+model AppearanceSettings {
+  id             String      @id @default("default")
+  colorPrimary   String      @default("#C2410C")
+  colorSecondary String      @default("#1C1917")
+  colorAccent    String      @default("#F59E0B")
+  colorBackground String     @default("#FDFCF9")
+  colorSurface   String      @default("#FFFFFF")
+  colorText      String      @default("#1C1917")
+  colorMuted     String      @default("#78716C")
+  colorButton    String      @default("#C2410C")
+  colorButtonText String     @default("#FFFFFF")
+  fontHeading    String      @default("Playfair Display")
+  fontBody       String      @default("Inter")
+  cardRadius     Int         @default(18)
+  cardShadow     CardShadow  @default(SOFT)
+  cardStyle      CardStyle   @default(ELEVATED)
+  buttonStyle    ButtonStyle @default(PILL)
+  updatedAt      DateTime    @updatedAt
+
+  @@map("appearance_settings")
+}
+
+model SeoSettings {
+  id              String   @id @default("default")
+  siteTitle       String   @default("Brasa & Bordo — Cardápio Digital")
+  titleTemplate   String   @default("%s · Brasa & Bordo")
+  description     String   @default("Conheça o nosso cardápio: hambúrgueres artesanais, combos e sobremesas.")
+  keywords        String   @default("")
+  ogImageUrl      String?
+  faviconUrl      String?
+  robots          String   @default("index, follow")
+  indexable       Boolean  @default(true)
+  googleVerification String?
+  updatedAt       DateTime @updatedAt
+
+  @@map("seo_settings")
+}
+
+model HeaderSettings {
+  id              String   @id @default("default")
+  logoUrl         String?
+  showLogoText    Boolean  @default(true)
+  transparentOnTop Boolean @default(true)
+  sticky          Boolean  @default(true)
+  ctaEnabled      Boolean  @default(true)
+  ctaLabel        String   @default("Peça pelo WhatsApp")
+  ctaUrl          String   @default("")
+  updatedAt       DateTime @updatedAt
+
+  @@map("header_settings")
+}
+
+model FooterSettings {
+  id          String   @id @default("default")
+  logoUrl     String?
+  about       String   @default("")
+  address     String   @default("")
+  phone       String   @default("")
+  copyright   String   @default("")
+  showSocial  Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+
+  @@map("footer_settings")
+}
+
+model EventSettings {
+  id             String             @id @default("default")
+  pastBehavior   PastEventsBehavior @default(ARCHIVE)
+  intro          String             @default("")
+  updatedAt      DateTime           @updatedAt
+
+  @@map("event_settings")
+}
+
+// ---------------------------------------------------------------------------
+// Páginas e Home
+// ---------------------------------------------------------------------------
+
+model Page {
+  key             PageKey  @id
+  label           String
+  path            String   @unique
+  enabled         Boolean  @default(true)
+  lockedEnabled   Boolean  @default(false)
+  position        Int      @default(0)
+  showInMenu      Boolean  @default(true)
+  showInFooter    Boolean  @default(true)
+  headline        String   @default("")
+  intro           String   @default("")
+  metaTitle       String   @default("")
+  metaDescription String   @default("")
+  socialImageUrl  String?
+  updatedAt       DateTime @updatedAt
+
+  @@map("pages")
+}
+
+model HomeSection {
+  id        String          @id @default(cuid())
+  type      HomeSectionType
+  title     String          @default("")
+  subtitle  String          @default("")
+  enabled   Boolean         @default(true)
+  position  Int             @default(0)
+  config    Json            @default("{}")
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@index([position])
+  @@map("home_sections")
+}
+
+// ---------------------------------------------------------------------------
+// Cardápio
+// ---------------------------------------------------------------------------
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String    @default("")
+  imageUrl    String?
+  imageAlt    String    @default("")
+  active      Boolean   @default(true)
+  position    Int       @default(0)
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+
+  @@index([position])
+  @@map("categories")
+}
+
+model Product {
+  id               String         @id @default(cuid())
+  name             String
+  slug             String         @unique
+  shortDescription String         @default("")
+  description      String         @default("")
+  price            Decimal        @db.Decimal(10, 2)
+  promoPrice       Decimal?       @db.Decimal(10, 2)
+  imageUrl         String?
+  imageAlt         String         @default("")
+  categoryId       String?
+  category         Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  tags             String[]       @default([])
+  ingredients      String[]       @default([])
+  allergens        String[]       @default([])
+  nutrition        Json?
+  featured         Boolean        @default(false)
+  isNew            Boolean        @default(false)
+  bestSeller       Boolean        @default(false)
+  active           Boolean        @default(true)
+  soldOut          Boolean        @default(false)
+  orderUrl         String?
+  position         Int            @default(0)
+  deletedAt        DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  images           ProductImage[]
+
+  @@index([categoryId, position])
+  @@map("products")
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String   @default("")
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([productId, position])
+  @@map("product_images")
+}
+
+// ---------------------------------------------------------------------------
+// Mídia
+// ---------------------------------------------------------------------------
+
+/// Espaços de imagem com nome amigável ("Logo principal", "Banner da Home").
+model MediaSlot {
+  key           String   @id
+  name          String
+  description   String   @default("")
+  recommended   String   @default("")
+  group         String   @default("Geral")
+  url           String?
+  alt           String   @default("")
+  position      Int      @default(0)
+  updatedAt     DateTime @updatedAt
+
+  @@map("media_slots")
+}
+
+/// Biblioteca de imagens enviadas pelo administrador.
+model MediaAsset {
+  id        String   @id @default(cuid())
+  name      String
+  alt       String   @default("")
+  url       String
+  pathname  String?
+  mimeType  String   @default("image/jpeg")
+  sizeBytes Int      @default(0)
+  width     Int?
+  height    Int?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("media_assets")
+}
+
+// ---------------------------------------------------------------------------
+// Delivery, eventos, unidades, redes
+// ---------------------------------------------------------------------------
+
+model DeliveryOption {
+  id          String   @id @default(cuid())
+  name        String
+  description String   @default("")
+  logoUrl     String?
+  url         String
+  active      Boolean  @default(true)
+  position    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("delivery_options")
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String   @default("")
+  imageUrl    String?
+  imageAlt    String   @default("")
+  startsAt    DateTime
+  endsAt      DateTime?
+  timeLabel   String   @default("")
+  address     String   @default("")
+  buttonLabel String   @default("")
+  buttonUrl   String   @default("")
+  active      Boolean  @default(true)
+  position    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([startsAt])
+  @@map("events")
+}
+
+model Location {
+  id            String   @id @default(cuid())
+  name          String
+  slug          String   @unique
+  imageUrl      String?
+  imageAlt      String   @default("")
+  address       String
+  city          String   @default("")
+  phone         String   @default("")
+  whatsapp      String   @default("")
+  openingHours  String   @default("")
+  mapsUrl       String   @default("")
+  deliveryUrl   String   @default("")
+  instagram     String   @default("")
+  active        Boolean  @default(true)
+  position      Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("locations")
+}
+
+model SocialLink {
+  id        String        @id @default(cuid())
+  network   SocialNetwork @unique
+  label     String
+  url       String        @default("")
+  enabled   Boolean       @default(false)
+  position  Int           @default(0)
+  updatedAt DateTime      @updatedAt
+
+  @@map("social_links")
+}
