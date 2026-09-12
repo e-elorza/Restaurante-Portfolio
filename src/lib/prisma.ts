@@ -1,5 +1,16 @@
 import { PrismaClient } from "@prisma/client";
 
+import { normalizarDatabaseUrl } from "@/lib/database-url.mjs";
+
+// As integrações de banco da Vercel criam a variável com nomes próprios (e às
+// vezes com um prefixo escolhido na hora de conectar). Copiamos a conexão para
+// DATABASE_URL antes de instanciar o cliente, que é o nome que o Prisma lê.
+const origemDaConexao = normalizarDatabaseUrl();
+
+if (origemDaConexao && origemDaConexao !== "DATABASE_URL") {
+  console.info(`[db] conexão encontrada em ${origemDaConexao}`);
+}
+
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };

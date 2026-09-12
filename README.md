@@ -201,10 +201,25 @@ openssl rand -base64 32
 
 > **Neon e Supabase:** eles dão duas URLs. A com *pooler* vai em `DATABASE_URL`
 > e a direta em `DIRECT_URL` — o pooler não aceita os comandos de migration.
->
-> Se você conectar o banco pela **integração da Vercel**, não precisa preencher
-> a `DIRECT_URL`: o projeto reconhece sozinho a `DATABASE_URL_UNPOOLED` (Neon) e
-> a `POSTGRES_URL_NON_POOLING` (Vercel Postgres/Supabase).
+
+#### Conectou o banco por uma integração da Vercel?
+
+Então você não precisa criar variável nenhuma. As integrações criam a conexão
+com nomes próprios — e algumas obrigam a escolher um prefixo (`MEUBANCO_URL`,
+`STORAGE_URL`...). O projeto procura a conexão nesta ordem:
+
+1. `DATABASE_URL`, `POSTGRES_PRISMA_URL`, `POSTGRES_URL`;
+2. qualquer variável de ambiente cujo valor seja uma URL de PostgreSQL.
+
+O mesmo vale para a conexão direta das migrations (`DIRECT_URL`,
+`DATABASE_URL_UNPOOLED`, `POSTGRES_URL_NON_POOLING` ou qualquer nome terminado
+em `_UNPOOLED` / `_NON_POOLING`). O nome escolhido aparece no log do build e do
+servidor, para não ficar mágico.
+
+> **Prisma Postgres:** essa integração entrega uma URL no formato
+> `prisma+postgres://` (Prisma Accelerate), que o cliente Prisma deste projeto
+> não abre. O build detecta e avisa. Prefira um PostgreSQL comum — Neon,
+> Supabase ou Vercel Postgres.
 
 ### 4. Publique
 

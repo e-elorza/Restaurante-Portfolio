@@ -17,26 +17,43 @@
  */
 import { spawnSync } from "node:child_process";
 
+import {
+  ehUrlPrismaAccelerate,
+  normalizarDatabaseUrl,
+  resolverConexaoDireta,
+} from "../src/lib/database-url.mjs";
+
 const aviso = (mensagem) => console.warn(`\n⚠  ${mensagem}\n`);
 
-/**
- * Nomes usados para a conexão direta, em ordem de preferência:
- * - DIRECT_URL ................ definida manualmente (documentada no .env.example);
- * - DATABASE_URL_UNPOOLED ..... criada pela integração do Neon;
- * - POSTGRES_URL_NON_POOLING .. criada pelas integrações Vercel Postgres/Supabase.
- */
-const VARIAVEIS_CONEXAO_DIRETA = [
-  "DIRECT_URL",
-  "DATABASE_URL_UNPOOLED",
-  "POSTGRES_URL_NON_POOLING",
-];
-
+const origemConexao = normalizarDatabaseUrl();
 const databaseUrl = process.env.DATABASE_URL?.trim();
 
-const origemDireta = VARIAVEIS_CONEXAO_DIRETA.find(
-  (nome) => process.env[nome]?.trim(),
+const conexaoDireta = resolverConexaoDireta(
+  process.env,
+  origemConexao ? [origemConexao] : [],
 );
-const directUrl = origemDireta ? process.env[origemDireta].trim() : undefined;
+const directUrl = conexaoDireta?.url;
+
+if (origemConexao && origemConexao !== "DATABASE_URL") {
+  console.log(`→ Conexão do banco encontrada em ${origemConexao}.`);
+}
+
+// O Prisma Postgres entrega uma URL que o cliente padrão não abre.
+const urlAccelerate = Object.entries(process.env).find(([, valor]) =>
+  ehUrlPrismaAccelerate(valor),
+);
+
+if (!databaseUrl && urlAccelerate) {
+  aviso(
+    [
+      `A variável ${urlAccelerate[0]} usa o formato "prisma+postgres://" (Prisma Accelerate),`,
+      "que o cliente Prisma deste projeto não abre diretamente.",
+      "Use um PostgreSQL comum (Neon, Supabase, Vercel Postgres) ou adicione",
+      "o pacote @prisma/extension-accelerate ao projeto.",
+    ].join("\n   "),
+  );
+  process.exit(0);
+}
 
 if (!databaseUrl) {
   aviso(
@@ -44,13 +61,17 @@ if (!databaseUrl) {
       "DATABASE_URL não está configurada — as migrations foram puladas.",
       "O site vai subir, mas sem banco de dados (conteúdo padrão e painel indisponível).",
       "Configure DATABASE_URL nas variáveis de ambiente e refaça o deploy.",
+      "Se você conectou o banco por uma integração da Vercel, confira se ela",
+      "chegou a criar alguma variável com a URL de conexão.",
     ].join("\n   "),
   );
   process.exit(0);
 }
 
 console.log(
-  `→ Aplicando migrations${directUrl ? ` (conexão direta via ${origemDireta})` : ""}...`,
+  `→ Aplicando migrations${
+    directUrl ? ` (conexão direta via ${conexaoDireta.origem})` : ""
+  }...`,
 );
 
 const resultado = spawnSync(
