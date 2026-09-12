@@ -201,6 +201,10 @@ openssl rand -base64 32
 
 > **Neon e Supabase:** eles dão duas URLs. A com *pooler* vai em `DATABASE_URL`
 > e a direta em `DIRECT_URL` — o pooler não aceita os comandos de migration.
+>
+> Se você conectar o banco pela **integração da Vercel**, não precisa preencher
+> a `DIRECT_URL`: o projeto reconhece sozinho a `DATABASE_URL_UNPOOLED` (Neon) e
+> a `POSTGRES_URL_NON_POOLING` (Vercel Postgres/Supabase).
 
 ### 4. Publique
 
