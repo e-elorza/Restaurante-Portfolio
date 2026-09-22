@@ -16,8 +16,8 @@ import {
 import { ProductShowcase } from "@/components/menu/product-showcase";
 import {
   getActiveCategories,
+  getCategoryMenu,
   getFeaturedProducts,
-  getPrimaryCategoryMenu,
 } from "@/lib/data/menu";
 import { getActiveLocations } from "@/lib/data/content";
 import { getActiveSocialLinks } from "@/lib/data/settings";
@@ -51,9 +51,9 @@ export async function HomeSections({
 }) {
   const types = new Set(sections.map((section) => section.type));
 
-  // O "Cardápio simples" precisa dos produtos da categoria principal; a
+  // O "Cardápio simples" precisa dos produtos da categoria escolhida nele; a
   // vitrine de categorias precisa só da lista de categorias.
-  const usaCardapioSimples = sections.some(
+  const cardapioSimples = sections.find(
     (section) =>
       section.type === "CATEGORIES" &&
       (section.config as CategoriesConfig).layout === "SIMPLE",
@@ -61,7 +61,11 @@ export async function HomeSections({
 
   const [categories, simpleMenu, locations, socials] = await Promise.all([
     types.has("CATEGORIES") ? getActiveCategories() : Promise.resolve([]),
-    usaCardapioSimples ? getPrimaryCategoryMenu() : Promise.resolve(null),
+    cardapioSimples
+      ? getCategoryMenu(
+          (cardapioSimples.config as CategoriesConfig).categoryId || undefined,
+        )
+      : Promise.resolve(null),
     types.has("LOCATIONS") ? getActiveLocations() : Promise.resolve([]),
     types.has("SOCIAL") ? getActiveSocialLinks() : Promise.resolve([]),
   ]);

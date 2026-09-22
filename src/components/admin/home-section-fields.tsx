@@ -32,7 +32,13 @@ const IMAGE_LINES_HINT =
  * Campos da seção do cardápio. Os dois layouts usam ajustes diferentes, então
  * a tela mostra só o que vale para o que está selecionado.
  */
-function CategoriesFields({ config }: { config: CategoriesConfig }) {
+function CategoriesFields({
+  config,
+  categories,
+}: {
+  config: CategoriesConfig;
+  categories: Category[];
+}) {
   const [layout, setLayout] = React.useState(config.layout ?? "CARDS");
 
   return (
@@ -42,7 +48,7 @@ function CategoriesFields({ config }: { config: CategoriesConfig }) {
         htmlFor="layout"
         hint={
           layout === "SIMPLE"
-            ? "Lista de preços da categoria principal, como num cardápio impresso. A categoria principal é escolhida em Cardápio > Categorias."
+            ? "Lista de preços de uma categoria, como num cardápio impresso."
             : "Vitrine com a foto de cada categoria, que leva para a seção dela no cardápio."
         }
       >
@@ -56,6 +62,25 @@ function CategoriesFields({ config }: { config: CategoriesConfig }) {
           <option value="SIMPLE">Cardápio simples (lista de preços)</option>
         </Select>
       </Field>
+
+      {layout === "SIMPLE" ? (
+        <Field
+          label="Qual categoria exibir"
+          htmlFor="categoryId"
+          hint="Os produtos publicados dessa categoria viram a lista de preços. Sem escolher, usamos a primeira categoria do cardápio."
+        >
+          <Select id="categoryId" name="categoryId" defaultValue={config.categoryId ?? ""}>
+            <option value="">A primeira do cardápio</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      ) : (
+        <input type="hidden" name="categoryId" value={config.categoryId ?? ""} />
+      )}
 
       {layout === "CARDS" ? (
         <>
@@ -271,7 +296,12 @@ export function HomeSectionFields({
     }
 
     case "CATEGORIES":
-      return <CategoriesFields config={section.config as CategoriesConfig} />;
+      return (
+        <CategoriesFields
+          config={section.config as CategoriesConfig}
+          categories={categories}
+        />
+      );
 
     case "FEATURED_PRODUCTS": {
       const config = section.config as FeaturedProductsConfig;

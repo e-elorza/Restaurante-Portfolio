@@ -96,6 +96,7 @@ const SECTION_SCHEMAS = {
   }),
   CATEGORIES: z.object({
     layout: z.enum(["CARDS", "SIMPLE"]).catch("CARDS"),
+    categoryId: text,
     limit,
     showDescription: checkbox,
     buttonLabel: text,

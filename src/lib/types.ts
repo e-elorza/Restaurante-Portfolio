@@ -74,13 +74,15 @@ export type VideoConfig = {
 /**
  * Como a seção do cardápio aparece na página inicial:
  *  - CARDS: vitrine com a foto de cada categoria;
- *  - SIMPLE: lista de preços da categoria marcada como principal, no estilo
- *    de um cardápio impresso (nome, linha de condução e preço).
+ *  - SIMPLE: lista de preços de uma categoria escolhida, no estilo de um
+ *    cardápio impresso (nome, linha de condução e preço).
  */
 export type CategoriesLayout = "CARDS" | "SIMPLE";
 
 export type CategoriesConfig = {
   layout: CategoriesLayout;
+  /** Categoria exibida pelo layout SIMPLE. Vazio = a primeira categoria ativa. */
+  categoryId: string;
   limit: number;
   showDescription: boolean;
   buttonLabel: string;

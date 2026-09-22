@@ -51,7 +51,7 @@ export function CategoriesSection({
   subtitle: string;
   config: CategoriesConfig;
   categories: Category[];
-  /** Categoria principal com seus produtos, usada pelo layout "Cardápio simples". */
+  /** Categoria escolhida na seção, com seus produtos, usada pelo layout SIMPLE. */
   simpleMenu?: PublicCategory | null;
   currency: string;
   locale: string;
@@ -132,7 +132,7 @@ export function CategoriesSection({
 }
 
 /**
- * Cardápio simples: a categoria principal como uma lista de preços, no formato
+ * Cardápio simples: a categoria escolhida como uma lista de preços, no formato
  * de um cardápio impresso — nome, linha de condução até o preço e a descrição
  * logo abaixo. Em duas colunas no computador, preenchendo de cima para baixo
  * como se lê um cardápio de papel.

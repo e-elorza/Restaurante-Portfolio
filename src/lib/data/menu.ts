@@ -65,7 +65,6 @@ function uncategorizedGroup(products: PublicProduct[]): PublicCategory {
     imageUrl: null,
     imageAlt: "",
     active: true,
-    isPrimary: false,
     // Sempre por último, depois de todas as categorias de verdade.
     position: Number.MAX_SAFE_INTEGER,
     deletedAt: null,
@@ -163,30 +162,40 @@ export const getActiveCategories = cache(async (): Promise<Category[]> =>
 );
 
 /**
- * Categoria exibida pelo "Cardápio simples" da página inicial, com os produtos
- * publicados dela.
+ * Uma categoria com os produtos publicados dela, usada pelo "Cardápio simples"
+ * da página inicial.
  *
- * Sem nenhuma categoria marcada como principal, cai na primeira categoria
- * ativa: assim a seção continua mostrando alguma coisa em vez de sumir da
- * página sem explicação.
+ * Sem categoria escolhida — ou quando a escolhida foi escondida ou excluída —
+ * cai na primeira categoria ativa, para a seção continuar mostrando alguma
+ * coisa em vez de sumir da página sem explicação.
  */
-export const getPrimaryCategoryMenu = cache(
-  async (): Promise<PublicCategory | null> => {
-    const category = await safeQuery(
-      () =>
+export const getCategoryMenu = cache(
+  async (categoryId?: string): Promise<PublicCategory | null> => {
+    const include = {
+      products: {
+        where: activeProductWhere,
+        orderBy: [{ position: "asc" }, { createdAt: "desc" }],
+        include: productInclude,
+      },
+    } satisfies Prisma.CategoryInclude;
+
+    const category = await safeQuery(async () => {
+      const escolhida = categoryId
+        ? await prisma.category.findFirst({
+            where: { id: categoryId, active: true, deletedAt: null },
+            include,
+          })
+        : null;
+
+      return (
+        escolhida ??
         prisma.category.findFirst({
           where: { active: true, deletedAt: null },
-          orderBy: [{ isPrimary: "desc" }, { position: "asc" }],
-          include: {
-            products: {
-              where: activeProductWhere,
-              orderBy: [{ position: "asc" }, { createdAt: "desc" }],
-              include: productInclude,
-            },
-          },
-        }),
-      null,
-    );
+          orderBy: { position: "asc" },
+          include,
+        })
+      );
+    }, null);
 
     if (!category) return null;
     return { ...category, products: category.products.map(toPublicProduct) };

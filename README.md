@@ -371,7 +371,7 @@ soltar) e respeito total a `prefers-reduced-motion`.
 | ------------------------- | ------------------------------------------------------------- |
 | **Dashboard**             | Resumo do cardápio e histórico das últimas alterações          |
 | **Cardápio → Produtos**   | Cadastrar itens, fotos, preços, ingredientes e disponibilidade |
-| **Cardápio → Categorias** | Seções do cardápio, com capa, ordem e categoria principal       |
+| **Cardápio → Categorias** | Seções do cardápio, com capa e ordem                           |
 | **Site → Página inicial** | Adicionar, ordenar e editar os blocos da home                  |
 | **Site → Páginas**        | Ligar/desligar páginas e editar textos e SEO de cada uma       |
 | **Site → Delivery**       | Canais de pedido (WhatsApp, aplicativos, entrega própria)      |
@@ -392,8 +392,8 @@ Dicas rápidas:
 - o botão **“Visualizar site”**, no topo do painel, abre o site em outra aba;
 - a tela de **Aparência** mostra uma prévia em tempo real antes de salvar;
 - a seção do cardápio na página inicial tem dois formatos: **vitrine de
-  categorias** (com fotos) ou **cardápio simples**, uma lista de preços da
-  categoria marcada com a estrela em **Cardápio → Categorias**;
+  categorias** (com fotos) ou **cardápio simples**, uma lista de preços; no
+  formato simples você escolhe ali mesmo qual categoria exibir;
 - em **Sistema → Usuários** você cria um acesso para cada pessoa da equipe;
   o *Administrador* faz tudo, o *Editor* cuida do conteúdo mas não mexe nos
   acessos. O painel nunca fica sem um administrador ativo;

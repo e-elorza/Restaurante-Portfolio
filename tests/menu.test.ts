@@ -18,7 +18,7 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
-const { UNCATEGORIZED_ID, getMenu, getPrimaryCategoryMenu } = await import(
+const { UNCATEGORIZED_ID, getCategoryMenu, getMenu } = await import(
   "@/lib/data/menu"
 );
 
@@ -48,7 +48,6 @@ function category(name: string, products: ReturnType<typeof product>[]) {
     imageUrl: null,
     imageAlt: "",
     active: true,
-    isPrimary: false,
     position: 0,
     deletedAt: null,
     createdAt: new Date(0),
@@ -105,40 +104,55 @@ describe("getMenu", () => {
   });
 });
 
-describe("getPrimaryCategoryMenu", () => {
+describe("getCategoryMenu", () => {
   beforeEach(() => {
     findFirstCategory.mockReset();
   });
 
-  it("pede a categoria marcada como principal antes das outras", async () => {
+  it("usa a categoria escolhida na seção", async () => {
     findFirstCategory.mockResolvedValue(
       category("Hambúrgueres", [product({ name: "Brasa", categoryId: "Hambúrgueres" })]),
     );
 
-    const menu = await getPrimaryCategoryMenu();
+    const menu = await getCategoryMenu("Hambúrgueres");
     expect(menu?.name).toBe("Hambúrgueres");
-    expect(menu?.products.map((item) => item.name)).toEqual(["Brasa"]);
+    expect(menu?.products.map((item: { name: string }) => item.name)).toEqual(["Brasa"]);
 
     const args = findFirstCategory.mock.calls[0][0];
-    // A principal vem primeiro; sem nenhuma marcada, cai na primeira da ordem
-    // definida no painel — por isso a consulta nunca filtra por isPrimary.
-    expect(args.orderBy).toEqual([{ isPrimary: "desc" }, { position: "asc" }]);
-    expect(args.where).toMatchObject({ active: true, deletedAt: null });
-    expect(args.where.isPrimary).toBeUndefined();
-  });
-
-  it("só traz produtos publicados", async () => {
-    findFirstCategory.mockResolvedValue(category("Bebidas", []));
-
-    await getPrimaryCategoryMenu();
-    expect(findFirstCategory.mock.calls[0][0].include.products.where).toMatchObject({
+    expect(args.where).toMatchObject({
+      id: "Hambúrgueres",
+      active: true,
+      deletedAt: null,
+    });
+    // Só produtos publicados entram na lista de preços.
+    expect(args.include.products.where).toMatchObject({
       active: true,
       deletedAt: null,
     });
   });
 
+  it("cai na primeira categoria ativa quando nenhuma foi escolhida", async () => {
+    findFirstCategory.mockResolvedValue(category("Entradas", []));
+
+    await getCategoryMenu();
+    const args = findFirstCategory.mock.calls[0][0];
+    expect(args.where.id).toBeUndefined();
+    expect(args.orderBy).toEqual({ position: "asc" });
+  });
+
+  it("cai na primeira ativa quando a categoria escolhida foi escondida", async () => {
+    // A primeira busca (pela escolhida) não acha nada; a segunda é o fallback.
+    findFirstCategory
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(category("Entradas", []));
+
+    const menu = await getCategoryMenu("categoria-escondida");
+    expect(menu?.name).toBe("Entradas");
+    expect(findFirstCategory).toHaveBeenCalledTimes(2);
+  });
+
   it("devolve nulo quando não há nenhuma categoria ativa", async () => {
     findFirstCategory.mockResolvedValue(null);
-    expect(await getPrimaryCategoryMenu()).toBeNull();
+    expect(await getCategoryMenu()).toBeNull();
   });
 });
