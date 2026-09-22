@@ -196,10 +196,12 @@ function SidebarContent({
 
       <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-5" aria-label="Menu do painel">
         {nav.map((group) => (
-          <div key={group.title}>
-            <p className="px-2 pb-2 text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-subtle-foreground">
-              {group.title}
-            </p>
+          <div key={group.title ?? "inicio"}>
+            {group.title ? (
+              <p className="px-2 pb-2 text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-subtle-foreground">
+                {group.title}
+              </p>
+            ) : null}
             <ul className="space-y-0.5">
               {group.items.map((item) => {
                 const Icon = ICONS[item.icon] ?? LayoutDashboard;

@@ -29,15 +29,11 @@ export const saveRestaurantSettingsAction = withActionState(
       where: { id: "default" },
       update: {
         ...data,
-        logoUrl: data.logoUrl || null,
-        faviconUrl: data.faviconUrl || null,
         orderUrl: data.orderUrl || null,
       },
       create: {
         id: "default",
         ...data,
-        logoUrl: data.logoUrl || null,
-        faviconUrl: data.faviconUrl || null,
         orderUrl: data.orderUrl || null,
       },
     });
@@ -82,8 +78,6 @@ export const saveSeoAction = withActionState(async (session, formData) => {
   const data = parsed.data;
   const payload = {
     ...data,
-    ogImageUrl: data.ogImageUrl || null,
-    faviconUrl: data.faviconUrl || null,
     googleVerification: data.googleVerification || null,
     robots: data.robots || "index, follow",
     titleTemplate: data.titleTemplate || "%s",
@@ -113,8 +107,8 @@ export const saveHeaderAction = withActionState(async (session, formData) => {
   const data = parsed.data;
   await prisma.headerSettings.upsert({
     where: { id: "default" },
-    update: { ...data, logoUrl: data.logoUrl || null },
-    create: { id: "default", ...data, logoUrl: data.logoUrl || null },
+    update: data,
+    create: { id: "default", ...data },
   });
 
   await logActivity({
@@ -135,8 +129,8 @@ export const saveFooterAction = withActionState(async (session, formData) => {
   const data = parsed.data;
   await prisma.footerSettings.upsert({
     where: { id: "default" },
-    update: { ...data, logoUrl: data.logoUrl || null },
-    create: { id: "default", ...data, logoUrl: data.logoUrl || null },
+    update: data,
+    create: { id: "default", ...data },
   });
 
   await logActivity({

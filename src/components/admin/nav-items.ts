@@ -10,7 +10,8 @@ export type AdminNavItem = {
 };
 
 export type AdminNavGroup = {
-  title: string;
+  /** Sem título, o grupo aparece sem cabeçalho — usado pelo item solto do topo. */
+  title?: string;
   items: AdminNavItem[];
 };
 
@@ -20,11 +21,10 @@ export type AdminNavGroup = {
  */
 export const ADMIN_NAV: AdminNavGroup[] = [
   {
-    title: "Visão geral",
     items: [
       {
         href: "/admin",
-        label: "Dashboard",
+        label: "Início",
         description: "Resumo do cardápio e das últimas alterações.",
         icon: "LayoutDashboard",
         exact: true,
@@ -37,13 +37,13 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       {
         href: "/admin/produtos",
         label: "Produtos",
-        description: "Cadastre pratos, preços, fotos e disponibilidade.",
+        description: "Seus pratos: preço, foto, descrição e se está esgotado.",
         icon: "UtensilsCrossed",
       },
       {
         href: "/admin/categorias",
         label: "Categorias",
-        description: "Organize o cardápio em seções (Burgers, Bebidas...).",
+        description: "As seções do cardápio: Hambúrgueres, Bebidas, Sobremesas...",
         icon: "FolderTree",
       },
     ],
@@ -54,19 +54,19 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       {
         href: "/admin/home",
         label: "Página inicial",
-        description: "Escolha e organize as seções da primeira página.",
+        description: "Monte a primeira página que o cliente vê.",
         icon: "Home",
       },
       {
         href: "/admin/paginas",
         label: "Páginas",
-        description: "Ligue ou desligue páginas e edite seus textos.",
+        description: "Ligue ou desligue páginas do site e edite seus textos.",
         icon: "Files",
       },
       {
         href: "/admin/delivery",
         label: "Delivery",
-        description: "Canais em que o cliente pode fazer o pedido.",
+        description: "Por onde o cliente faz o pedido: WhatsApp, apps, retirada.",
         icon: "Bike",
       },
       {
@@ -78,36 +78,36 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       {
         href: "/admin/unidades",
         label: "Unidades",
-        description: "Endereços, horários e contatos de cada loja.",
+        description: "Endereço, horário e telefone de cada loja.",
         icon: "MapPin",
       },
     ],
   },
   {
-    title: "Identidade",
+    title: "Aparência",
     items: [
       {
         href: "/admin/midia",
-        label: "Mídia",
-        description: "Todas as imagens do site em um só lugar.",
+        label: "Imagens",
+        description: "Logo, ícone e as capas das páginas, num lugar só.",
         icon: "Images",
       },
       {
         href: "/admin/aparencia",
-        label: "Aparência",
-        description: "Cores, fontes e formato dos botões e cards.",
+        label: "Cores e fontes",
+        description: "A cara do site: cores, fontes, cabeçalho e rodapé.",
         icon: "Palette",
       },
       {
         href: "/admin/seo",
-        label: "SEO",
-        description: "Como o site aparece no Google e no WhatsApp.",
+        label: "Google e buscadores",
+        description: "Como o site aparece na busca do Google.",
         icon: "Search",
       },
       {
         href: "/admin/redes-sociais",
         label: "Redes sociais",
-        description: "Instagram, TikTok, Facebook e outras redes.",
+        description: "Os links do Instagram, TikTok e outras redes.",
         icon: "Share2",
       },
     ],
@@ -118,7 +118,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       {
         href: "/admin/configuracoes",
         label: "Configurações",
-        description: "Nome, contatos, WhatsApp e dados gerais.",
+        description: "Nome do restaurante, telefone, WhatsApp e endereço.",
         icon: "Settings",
       },
       {

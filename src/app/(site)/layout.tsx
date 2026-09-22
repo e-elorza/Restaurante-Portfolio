@@ -49,8 +49,9 @@ export default async function SiteLayout({
     getMediaSlotUrls(),
   ]);
 
-  const logoUrl = header.logoUrl || media["logo-principal"] || settings.logoUrl || null;
-  const footerLogoUrl = footer.logoUrl || media["logo-rodape"] || logoUrl;
+  const logoUrl = media["logo-principal"] || null;
+  // Sem logo própria no rodapé, repete a do topo.
+  const footerLogoUrl = media["logo-rodape"] || logoUrl;
   const whatsapp = whatsappLink(settings.whatsapp, settings.whatsappMessage);
 
   const ctaUrl = header.ctaUrl || whatsapp || settings.orderUrl || "";
@@ -101,7 +102,8 @@ export default async function SiteLayout({
 
       <SiteFooter
         navigation={footerNavigation}
-        footer={{ ...footer, logoUrl: footerLogoUrl }}
+        footer={footer}
+        logoUrl={footerLogoUrl}
         settings={settings}
         socials={socials}
         backgroundUrl={media["rodape-imagem"]}

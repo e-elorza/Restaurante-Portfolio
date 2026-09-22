@@ -143,8 +143,6 @@ model RestaurantSettings {
   name           String   @default("Brasa & Bordo")
   tagline        String   @default("Cozinha de fogo, alma de bairro")
   description    String   @default("")
-  logoUrl        String?
-  faviconUrl     String?
   phone          String?
   whatsapp       String?
   email          String?
@@ -191,8 +189,6 @@ model SeoSettings {
   titleTemplate   String   @default("%s · Brasa & Bordo")
   description     String   @default("Conheça o nosso cardápio: hambúrgueres artesanais, combos e sobremesas.")
   keywords        String   @default("")
-  ogImageUrl      String?
-  faviconUrl      String?
   robots          String   @default("index, follow")
   indexable       Boolean  @default(true)
   googleVerification String?
@@ -203,7 +199,6 @@ model SeoSettings {
 
 model HeaderSettings {
   id              String   @id @default("default")
-  logoUrl         String?
   showLogoText    Boolean  @default(true)
   transparentOnTop Boolean @default(true)
   sticky          Boolean  @default(true)
@@ -217,10 +212,7 @@ model HeaderSettings {
 
 model FooterSettings {
   id          String   @id @default("default")
-  logoUrl     String?
   about       String   @default("")
-  address     String   @default("")
-  phone       String   @default("")
   copyright   String   @default("")
   showSocial  Boolean  @default(true)
   updatedAt   DateTime @updatedAt

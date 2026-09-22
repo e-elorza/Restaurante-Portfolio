@@ -3,7 +3,6 @@
 import type { FooterSettings, HeaderSettings } from "@prisma/client";
 
 import { AdminForm } from "@/components/admin/admin-form";
-import { ImageField } from "@/components/admin/image-field";
 import { Field, FieldGroup, Input, SwitchField, Textarea } from "@/components/ui/form";
 import { saveFooterAction, saveHeaderAction } from "@/server/actions/settings";
 
@@ -14,20 +13,11 @@ export function HeaderForm({ header }: { header: HeaderSettings }) {
         title="Cabeçalho"
         description="A barra que fica no topo de todas as páginas."
       >
-        <ImageField
-          name="logoUrl"
-          label="Logo do cabeçalho"
-          hint="Se ficar em branco, usamos a logo definida em Mídia. Prefira uma logo clara: o topo do site tem fundo escuro."
-          recommended="PNG com fundo transparente · 400 × 120 px"
-          folder="site"
-          aspect="wide"
-          defaultValue={header.logoUrl ?? ""}
-        />
 
         <SwitchField
           name="showLogoText"
           label="Mostrar também o nome do restaurante escrito"
-          hint="Útil quando a logo é só um símbolo."
+          hint="Útil quando a logo é só um símbolo. A logo é enviada em Mídia."
           defaultChecked={header.showLogoText}
         />
 
@@ -85,14 +75,6 @@ export function FooterForm({ footer }: { footer: FooterSettings }) {
         title="Rodapé"
         description="A faixa escura no fim de todas as páginas. Os links das páginas desligadas somem sozinhos."
       >
-        <ImageField
-          name="logoUrl"
-          label="Logo do rodapé"
-          recommended="PNG com fundo transparente · 400 × 120 px"
-          folder="site"
-          aspect="wide"
-          defaultValue={footer.logoUrl ?? ""}
-        />
 
         <Field
           label="Texto institucional"
@@ -107,19 +89,10 @@ export function FooterForm({ footer }: { footer: FooterSettings }) {
           />
         </Field>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Endereço exibido no rodapé" htmlFor="footer-address">
-            <Input id="footer-address" name="address" defaultValue={footer.address} />
-          </Field>
-          <Field label="Telefone exibido no rodapé" htmlFor="footer-phone">
-            <Input id="footer-phone" name="phone" defaultValue={footer.phone} />
-          </Field>
-        </div>
-
         <Field
           label="Texto de direitos autorais"
           htmlFor="footer-copyright"
-          hint="Se ficar em branco, geramos automaticamente com o ano atual."
+          hint="Se ficar em branco, geramos automaticamente com o ano atual. O endereço e o telefone do rodapé vêm de Sistema > Configurações."
         >
           <Input
             id="footer-copyright"

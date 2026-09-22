@@ -21,8 +21,6 @@ export const DEFAULT_RESTAURANT: RestaurantSettings = {
   tagline: "Cozinha de fogo, alma de bairro",
   description:
     "Hambúrgueres artesanais, brasa lenta e ingredientes escolhidos a dedo.",
-  logoUrl: null,
-  faviconUrl: null,
   phone: "",
   whatsapp: "",
   email: "",
@@ -66,8 +64,6 @@ export const DEFAULT_SEO: SeoSettings = {
   description:
     "Conheça o nosso cardápio: hambúrgueres artesanais, combos e sobremesas.",
   keywords: "",
-  ogImageUrl: null,
-  faviconUrl: null,
   robots: "index, follow",
   indexable: true,
   googleVerification: null,
@@ -76,7 +72,6 @@ export const DEFAULT_SEO: SeoSettings = {
 
 export const DEFAULT_HEADER: HeaderSettings = {
   id: "default",
-  logoUrl: null,
   showLogoText: true,
   transparentOnTop: true,
   sticky: true,
@@ -88,10 +83,7 @@ export const DEFAULT_HEADER: HeaderSettings = {
 
 export const DEFAULT_FOOTER: FooterSettings = {
   id: "default",
-  logoUrl: null,
   about: "",
-  address: "",
-  phone: "",
   copyright: "",
   showSocial: true,
   updatedAt: now(),

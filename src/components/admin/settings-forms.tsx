@@ -3,7 +3,6 @@
 import type { RestaurantSettings, SeoSettings, SocialLink } from "@prisma/client";
 
 import { AdminForm } from "@/components/admin/admin-form";
-import { ImageField } from "@/components/admin/image-field";
 import {
   Field,
   FieldGroup,
@@ -88,26 +87,6 @@ export function GeneralSettingsForm({
               />
             </Field>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <ImageField
-                name="logoUrl"
-                label="Logo"
-                hint="Use a mesma logo do cabeçalho, se preferir."
-                recommended="PNG com fundo transparente · 400 × 120 px"
-                folder="site"
-                aspect="wide"
-                defaultValue={settings.logoUrl ?? ""}
-              />
-              <ImageField
-                name="faviconUrl"
-                label="Ícone do navegador"
-                hint="Aparece na abinha do navegador."
-                recommended="PNG quadrado · 512 × 512 px"
-                folder="site"
-                aspect="square"
-                defaultValue={settings.faviconUrl ?? ""}
-              />
-            </div>
           </FieldGroup>
 
           <FieldGroup title="Contatos">
@@ -333,27 +312,6 @@ export function SeoForm({ seo }: { seo: SeoSettings }) {
             </Field>
           </FieldGroup>
 
-          <FieldGroup title="Imagens">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <ImageField
-                name="ogImageUrl"
-                label="Imagem de compartilhamento"
-                hint="Aparece quando alguém manda o link do site no WhatsApp ou Instagram."
-                recommended="JPG · 1200 × 630 px"
-                folder="seo"
-                aspect="wide"
-                defaultValue={seo.ogImageUrl ?? ""}
-              />
-              <ImageField
-                name="faviconUrl"
-                label="Ícone do navegador"
-                recommended="PNG quadrado · 512 × 512 px"
-                folder="seo"
-                aspect="square"
-                defaultValue={seo.faviconUrl ?? ""}
-              />
-            </div>
-          </FieldGroup>
 
           <FieldGroup
             title="Indexação"

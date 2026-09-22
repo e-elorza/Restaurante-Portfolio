@@ -50,8 +50,6 @@ async function seedSettings(prisma: PrismaClient) {
       tagline: "Cozinha de fogo, alma de bairro",
       description:
         "Hambúrgueres artesanais de brasa lenta, pão de fermentação natural e ingredientes de produtores locais. Um cardápio pequeno, feito com calma.",
-      logoUrl: demo("logo.svg"),
-      faviconUrl: demo("favicon.png"),
       phone: "(11) 4002-8922",
       whatsapp: "5511999990000",
       email: "contato@brasaebordo.com.br",
@@ -82,8 +80,6 @@ async function seedSettings(prisma: PrismaClient) {
       description:
         "Cardápio digital do Brasa & Bordo: hambúrgueres artesanais, combos, acompanhamentos e sobremesas. Peça pelo WhatsApp ou pelos aplicativos de entrega.",
       keywords: "hamburgueria, hambúrguer artesanal, delivery, cardápio digital",
-      ogImageUrl: demo("imagem-compartilhamento.jpg"),
-      faviconUrl: demo("favicon.png"),
     },
   });
 
@@ -92,7 +88,6 @@ async function seedSettings(prisma: PrismaClient) {
     update: {},
     create: {
       id: "default",
-      logoUrl: demo("logo.svg"),
       ctaEnabled: true,
       ctaLabel: "Peça pelo WhatsApp",
       ctaUrl: "",
@@ -104,11 +99,8 @@ async function seedSettings(prisma: PrismaClient) {
     update: {},
     create: {
       id: "default",
-      logoUrl: demo("logo.svg"),
       about:
         "Brasa lenta, pão de fermentação natural e um cardápio curto para fazer tudo bem feito.",
-      address: "Rua das Oliveiras, 210 — Vila Madalena, São Paulo",
-      phone: "(11) 4002-8922",
       copyright: "© Brasa & Bordo. Todos os direitos reservados.",
       showSocial: true,
     },

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 
 import "./globals.css";
 import { getSeoSettings } from "@/lib/data/settings";
+import { getMediaSlotUrls } from "@/lib/data/content";
 import { siteUrl } from "@/lib/site-url";
 
 export const viewport: Viewport = {
@@ -11,7 +12,10 @@ export const viewport: Viewport = {
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const seo = await getSeoSettings();
+  // As imagens da marca moram todas em Mídia — um lugar só para cada uma.
+  const [seo, media] = await Promise.all([getSeoSettings(), getMediaSlotUrls()]);
+  const favicon = media["favicon"];
+  const ogImage = media["imagem-compartilhamento"];
 
   const keywords = seo.keywords
     .split(",")
@@ -29,19 +33,19 @@ export async function generateMetadata(): Promise<Metadata> {
     robots: seo.indexable
       ? { index: true, follow: true }
       : { index: false, follow: false },
-    icons: seo.faviconUrl ? { icon: seo.faviconUrl } : undefined,
+    icons: favicon ? { icon: favicon } : undefined,
     openGraph: {
       type: "website",
       locale: "pt_BR",
       title: seo.siteTitle,
       description: seo.description,
-      images: seo.ogImageUrl ? [{ url: seo.ogImageUrl }] : undefined,
+      images: ogImage ? [{ url: ogImage }] : undefined,
     },
     twitter: {
       card: "summary_large_image",
       title: seo.siteTitle,
       description: seo.description,
-      images: seo.ogImageUrl ? [seo.ogImageUrl] : undefined,
+      images: ogImage ? [ogImage] : undefined,
     },
     verification: seo.googleVerification
       ? { google: seo.googleVerification }

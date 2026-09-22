@@ -377,10 +377,10 @@ soltar) e respeito total a `prefers-reduced-motion`.
 | **Site → Delivery**       | Canais de pedido (WhatsApp, aplicativos, entrega própria)      |
 | **Site → Eventos**        | Agenda da casa e o que fazer com eventos passados              |
 | **Site → Unidades**       | Endereços, horários, telefones e mapas                         |
-| **Identidade → Mídia**    | Todas as imagens fixas do site, com nome e explicação          |
-| **Identidade → Aparência**| Cores, fontes, cards, botões, cabeçalho e rodapé               |
-| **Identidade → SEO**      | Título, descrição, imagem de compartilhamento e indexação      |
-| **Identidade → Redes**    | Instagram, TikTok, Facebook e outras redes                     |
+| **Aparência → Imagens**   | Logo, ícone do navegador e capas das páginas — cada um num lugar só |
+| **Aparência → Cores e fontes** | Cores, fontes, cards, botões, cabeçalho e rodapé          |
+| **Aparência → Google e buscadores** | Título, descrição e indexação no Google          |
+| **Aparência → Redes sociais** | Instagram, TikTok, Facebook e outras redes                |
 | **Sistema → Configurações** | Nome, contatos, WhatsApp, moeda e fuso horário               |
 | **Sistema → Usuários**    | Criar, desativar e remover acessos ao painel                   |
 | **Sistema → Minha conta** | Ver os próprios dados e trocar a senha                         |
@@ -389,6 +389,11 @@ Dicas rápidas:
 
 - todo bloco da home pode ser **arrastado** pela alça à esquerda;
 - nada é excluído sem uma confirmação explícita;
+- cada imagem tem **um lugar só**: a logo, o ícone do navegador e a imagem de
+  compartilhamento ficam em **Aparência → Imagens**; as fotos das seções da
+  home ficam na própria seção, em **Site → Página inicial**;
+- endereço e telefone ficam só em **Sistema → Configurações** — o rodapé e a
+  página de contato usam os mesmos;
 - o botão **“Visualizar site”**, no topo do painel, abre o site em outra aba;
 - a tela de **Aparência** mostra uma prévia em tempo real antes de salvar;
 - a seção do cardápio na página inicial tem dois formatos: **vitrine de

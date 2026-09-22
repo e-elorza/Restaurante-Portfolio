@@ -10,12 +10,14 @@ import { safeExternalUrl } from "@/lib/utils";
 export function SiteFooter({
   navigation,
   footer,
+  logoUrl,
   settings,
   socials,
   backgroundUrl,
 }: {
   navigation: NavigationItem[];
   footer: FooterSettings;
+  logoUrl: string | null;
   settings: RestaurantSettings;
   socials: SocialLink[];
   backgroundUrl?: string | null;
@@ -41,9 +43,9 @@ export function SiteFooter({
       <div className="site-container relative py-14 lg:py-20">
         <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr]">
           <div className="space-y-5">
-            {footer.logoUrl ? (
+            {logoUrl ? (
               <Image
-                src={footer.logoUrl}
+                src={logoUrl}
                 alt={settings.name}
                 width={220}
                 height={64}
@@ -99,20 +101,20 @@ export function SiteFooter({
               Contato
             </h2>
             <ul className="space-y-3 text-sm">
-              {footer.address || settings.address ? (
+              {settings.address ? (
                 <li className="flex gap-2.5">
                   <MapPin className="mt-0.5 size-4 shrink-0 text-white/50" aria-hidden />
-                  <span>{footer.address || settings.address}</span>
+                  <span>{settings.address}</span>
                 </li>
               ) : null}
-              {footer.phone || settings.phone ? (
+              {settings.phone ? (
                 <li className="flex gap-2.5">
                   <Phone className="mt-0.5 size-4 shrink-0 text-white/50" aria-hidden />
                   <a
-                    href={`tel:${(footer.phone || settings.phone || "").replace(/\D/g, "")}`}
+                    href={`tel:${(settings.phone || "").replace(/\D/g, "")}`}
                     className="transition-colors hover:text-white"
                   >
-                    {footer.phone || settings.phone}
+                    {settings.phone}
                   </a>
                 </li>
               ) : null}

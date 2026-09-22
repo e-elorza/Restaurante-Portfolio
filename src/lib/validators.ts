@@ -262,8 +262,6 @@ export const restaurantSettingsSchema = z.object({
   name: requiredText("o nome do restaurante", 120),
   tagline: optionalText(160),
   description: optionalText(600),
-  logoUrl: optionalUrl,
-  faviconUrl: optionalUrl,
   phone: optionalText(40),
   whatsapp: optionalText(40),
   email: z
@@ -310,15 +308,12 @@ export const seoSchema = z.object({
   titleTemplate: optionalText(90),
   description: optionalText(220),
   keywords: optionalText(400),
-  ogImageUrl: optionalUrl,
-  faviconUrl: optionalUrl,
   robots: optionalText(80),
   indexable: checkbox,
   googleVerification: optionalText(120),
 });
 
 export const headerSchema = z.object({
-  logoUrl: optionalUrl,
   showLogoText: checkbox,
   transparentOnTop: checkbox,
   sticky: checkbox,
@@ -328,10 +323,7 @@ export const headerSchema = z.object({
 });
 
 export const footerSchema = z.object({
-  logoUrl: optionalUrl,
   about: optionalText(600),
-  address: optionalText(240),
-  phone: optionalText(40),
   copyright: optionalText(200),
   showSocial: checkbox,
 });
@@ -358,8 +350,8 @@ export const socialLinkSchema = z.object({
 export const deliveryOptionSchema = z.object({
   id: z.string().optional(),
   name: requiredText("o nome do canal de delivery", 80),
-  description: optionalText(300),
   logoUrl: optionalUrl,
+  description: optionalText(300),
   url: z
     .string()
     .trim()

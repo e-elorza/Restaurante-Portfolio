@@ -223,9 +223,9 @@ export const HOME_SECTION_DEFINITIONS: HomeSectionDefinition[] = [
   },
   {
     type: "CATEGORIES",
-    label: "Categorias do cardápio",
+    label: "Cardápio simples",
     description:
-      "Mostra as categorias do cardápio (Burgers, Combos, Bebidas...) com foto e link.",
+      "Uma lista de preços dos seus produtos na página inicial. Também pode mostrar as categorias com foto.",
     defaultTitle: "Explore o cardápio",
     defaultSubtitle: "Escolha por onde começar.",
     unique: false,
@@ -315,7 +315,7 @@ export const MEDIA_SLOT_DEFINITIONS: MediaSlotDefinition[] = [
   {
     key: "logo-principal",
     name: "Logo principal",
-    description: "Logo exibida no canto superior esquerdo do cabeçalho.",
+    description: "Aparece no topo de todas as páginas do site.",
     recommended: "PNG com fundo transparente · 400 × 120 px",
     group: "Identidade",
     position: 0,
@@ -323,7 +323,7 @@ export const MEDIA_SLOT_DEFINITIONS: MediaSlotDefinition[] = [
   {
     key: "logo-rodape",
     name: "Logo do rodapé",
-    description: "Versão da logo usada no rodapé do site. Pode ser a mesma do topo.",
+    description: "Aparece no rodapé. Pode ser a mesma do topo.",
     recommended: "PNG com fundo transparente · 400 × 120 px",
     group: "Identidade",
     position: 1,
@@ -347,54 +347,12 @@ export const MEDIA_SLOT_DEFINITIONS: MediaSlotDefinition[] = [
     position: 3,
   },
   {
-    key: "home-destaque",
-    name: "Banner principal da Home",
-    description: "Imagem grande exibida no topo da página inicial (computador).",
-    recommended: "JPG · 2000 × 1200 px",
-    group: "Página inicial",
-    position: 4,
-  },
-  {
-    key: "home-destaque-celular",
-    name: "Banner principal da Home (celular)",
-    description:
-      "Versão vertical do banner principal, usada em telas de celular.",
-    recommended: "JPG · 1080 × 1440 px",
-    group: "Página inicial",
-    position: 5,
-  },
-  {
-    key: "home-sobre",
-    name: "Imagem da seção Sobre Nós",
-    description: "Imagem exibida ao lado do texto institucional da página inicial.",
-    recommended: "JPG · 1200 × 1400 px",
-    group: "Página inicial",
-    position: 6,
-  },
-  {
-    key: "home-banner",
-    name: "Banner promocional",
-    description: "Faixa larga usada na seção de promoção da página inicial.",
-    recommended: "JPG · 2000 × 900 px",
-    group: "Página inicial",
-    position: 7,
-  },
-  {
-    key: "home-video-capa",
-    name: "Capa do vídeo",
-    description:
-      "Imagem exibida antes do vídeo começar a tocar na página inicial.",
-    recommended: "JPG · 1920 × 1080 px",
-    group: "Página inicial",
-    position: 8,
-  },
-  {
     key: "capa-cardapio",
     name: "Capa da página Cardápio",
     description: "Imagem de fundo do topo da página de cardápio.",
     recommended: "JPG · 2000 × 900 px",
     group: "Páginas internas",
-    position: 9,
+    position: 4,
   },
   {
     key: "capa-delivery",
@@ -402,7 +360,7 @@ export const MEDIA_SLOT_DEFINITIONS: MediaSlotDefinition[] = [
     description: "Imagem de fundo do topo da página de delivery.",
     recommended: "JPG · 2000 × 900 px",
     group: "Páginas internas",
-    position: 10,
+    position: 5,
   },
   {
     key: "capa-eventos",
@@ -410,7 +368,7 @@ export const MEDIA_SLOT_DEFINITIONS: MediaSlotDefinition[] = [
     description: "Imagem de fundo do topo da página de eventos.",
     recommended: "JPG · 2000 × 900 px",
     group: "Páginas internas",
-    position: 11,
+    position: 6,
   },
   {
     key: "capa-unidades",
@@ -418,7 +376,7 @@ export const MEDIA_SLOT_DEFINITIONS: MediaSlotDefinition[] = [
     description: "Imagem de fundo do topo da página de unidades.",
     recommended: "JPG · 2000 × 900 px",
     group: "Páginas internas",
-    position: 12,
+    position: 7,
   },
   {
     key: "capa-contato",
@@ -426,7 +384,7 @@ export const MEDIA_SLOT_DEFINITIONS: MediaSlotDefinition[] = [
     description: "Imagem de fundo do topo da página de contato.",
     recommended: "JPG · 2000 × 900 px",
     group: "Páginas internas",
-    position: 13,
+    position: 8,
   },
   {
     key: "rodape-imagem",
@@ -434,7 +392,7 @@ export const MEDIA_SLOT_DEFINITIONS: MediaSlotDefinition[] = [
     description: "Imagem de fundo usada no rodapé do site.",
     recommended: "JPG · 2000 × 600 px",
     group: "Rodapé",
-    position: 14,
+    position: 9,
   },
 ];
 
