@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Eye, EyeOff, ImageOff, Pencil, Plus, Trash2 } from "lucide-react";
+import { Eye, EyeOff, ImageOff, Pencil, Plus, Star, Trash2 } from "lucide-react";
 import type { Category } from "@prisma/client";
 
 import { AdminForm } from "@/components/admin/admin-form";
@@ -16,6 +16,7 @@ import {
   deleteCategoryAction,
   reorderCategoriesAction,
   saveCategoryAction,
+  setPrimaryCategoryAction,
   toggleCategoryAction,
 } from "@/server/actions/menu";
 
@@ -74,6 +75,12 @@ function CategoryRow({ category }: { category: AdminCategory }) {
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="truncate text-sm font-medium">{category.name}</span>
+          {category.isPrimary ? (
+            <Badge tone="brand">
+              <Star className="size-3 fill-current" aria-hidden />
+              Principal
+            </Badge>
+          ) : null}
           {!category.active ? <Badge tone="neutral">Escondida</Badge> : null}
         </div>
         <p className="admin-hint truncate">
@@ -84,6 +91,29 @@ function CategoryRow({ category }: { category: AdminCategory }) {
       </div>
 
       <div className="flex shrink-0 items-center gap-1">
+        <form action={setPrimaryCategoryAction}>
+          <input type="hidden" name="id" value={category.id} />
+          <Button
+            type="submit"
+            variant="ghost"
+            size="icon"
+            title={
+              category.isPrimary
+                ? "Deixar de ser a categoria principal"
+                : "Definir como categoria principal (usada no cardápio simples da página inicial)"
+            }
+            aria-label={
+              category.isPrimary
+                ? `${category.name} deixa de ser a categoria principal`
+                : `Definir ${category.name} como categoria principal`
+            }
+            aria-pressed={category.isPrimary}
+            className={category.isPrimary ? "text-primary" : undefined}
+          >
+            <Star className={category.isPrimary ? "fill-current" : undefined} aria-hidden />
+          </Button>
+        </form>
+
         <form action={toggleCategoryAction}>
           <input type="hidden" name="id" value={category.id} />
           <input type="hidden" name="active" value={category.active ? "false" : "true"} />

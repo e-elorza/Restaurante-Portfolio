@@ -28,6 +28,84 @@ function imagesToText(images: Array<{ url: string; alt?: string }>): string {
 const IMAGE_LINES_HINT =
   "Um endereço de imagem por linha. Para descrever a imagem, use: endereço | descrição";
 
+/**
+ * Campos da seção do cardápio. Os dois layouts usam ajustes diferentes, então
+ * a tela mostra só o que vale para o que está selecionado.
+ */
+function CategoriesFields({ config }: { config: CategoriesConfig }) {
+  const [layout, setLayout] = React.useState(config.layout ?? "CARDS");
+
+  return (
+    <>
+      <Field
+        label="Como exibir"
+        htmlFor="layout"
+        hint={
+          layout === "SIMPLE"
+            ? "Lista de preços da categoria principal, como num cardápio impresso. A categoria principal é escolhida em Cardápio > Categorias."
+            : "Vitrine com a foto de cada categoria, que leva para a seção dela no cardápio."
+        }
+      >
+        <Select
+          id="layout"
+          name="layout"
+          defaultValue={layout}
+          onChange={(event) => setLayout(event.target.value as CategoriesConfig["layout"])}
+        >
+          <option value="CARDS">Vitrine de categorias (com fotos)</option>
+          <option value="SIMPLE">Cardápio simples (lista de preços)</option>
+        </Select>
+      </Field>
+
+      {layout === "CARDS" ? (
+        <>
+          <Field
+            label="Quantas categorias mostrar"
+            htmlFor="limit"
+            hint="As categorias aparecem na ordem definida em Cardápio > Categorias."
+          >
+            <Input
+              id="limit"
+              name="limit"
+              type="number"
+              min={1}
+              max={12}
+              defaultValue={config.limit}
+            />
+          </Field>
+          <SwitchField
+            name="showDescription"
+            label="Mostrar a descrição de cada categoria"
+            defaultChecked={config.showDescription}
+          />
+        </>
+      ) : (
+        // Os campos continuam no formulário para não perder o que já estava
+        // salvo quando o administrador volta para a vitrine.
+        <>
+          <input type="hidden" name="limit" value={config.limit} />
+          {config.showDescription ? (
+            <input type="hidden" name="showDescription" value="on" />
+          ) : null}
+        </>
+      )}
+
+      <Field
+        label="Texto do botão"
+        htmlFor="buttonLabel"
+        hint="Leva para o cardápio completo. Deixe em branco para esconder o botão."
+      >
+        <Input
+          id="buttonLabel"
+          name="buttonLabel"
+          defaultValue={config.buttonLabel}
+          placeholder="Ver cardápio completo"
+        />
+      </Field>
+    </>
+  );
+}
+
 function AlignField({ defaultValue }: { defaultValue: string }) {
   return (
     <Field
@@ -192,40 +270,8 @@ export function HomeSectionFields({
       );
     }
 
-    case "CATEGORIES": {
-      const config = section.config as CategoriesConfig;
-      return (
-        <>
-          <Field
-            label="Quantas categorias mostrar"
-            htmlFor="limit"
-            hint="As categorias aparecem na ordem definida em Cardápio > Categorias."
-          >
-            <Input
-              id="limit"
-              name="limit"
-              type="number"
-              min={1}
-              max={12}
-              defaultValue={config.limit}
-            />
-          </Field>
-          <SwitchField
-            name="showDescription"
-            label="Mostrar a descrição de cada categoria"
-            defaultChecked={config.showDescription}
-          />
-          <Field label="Texto do botão" htmlFor="buttonLabel">
-            <Input
-              id="buttonLabel"
-              name="buttonLabel"
-              defaultValue={config.buttonLabel}
-              placeholder="Ver cardápio completo"
-            />
-          </Field>
-        </>
-      );
-    }
+    case "CATEGORIES":
+      return <CategoriesFields config={section.config as CategoriesConfig} />;
 
     case "FEATURED_PRODUCTS": {
       const config = section.config as FeaturedProductsConfig;

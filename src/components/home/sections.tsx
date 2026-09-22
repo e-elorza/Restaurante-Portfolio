@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowRight, Clock, MapPin, Phone } from "lucide-react";
 import type { Category, Location, SocialLink } from "@prisma/client";
 
-import { cn, safeExternalUrl } from "@/lib/utils";
+import { cn, formatCurrency, safeExternalUrl } from "@/lib/utils";
 import { SectionHeading, SiteButton } from "@/components/site/blocks";
 import { Reveal, RevealGroup, RevealItem } from "@/components/site/motion";
 import { SocialIcon } from "@/components/site/social-icon";
@@ -11,6 +11,8 @@ import type {
   AboutConfig,
   BannerConfig,
   CategoriesConfig,
+  PublicCategory,
+  PublicProduct,
   DeliveryCtaConfig,
   GalleryConfig,
   LocationsConfig,
@@ -41,12 +43,32 @@ export function CategoriesSection({
   subtitle,
   config,
   categories,
+  simpleMenu,
+  currency,
+  locale,
 }: {
   title: string;
   subtitle: string;
   config: CategoriesConfig;
   categories: Category[];
+  /** Categoria principal com seus produtos, usada pelo layout "Cardápio simples". */
+  simpleMenu?: PublicCategory | null;
+  currency: string;
+  locale: string;
 }) {
+  if (config.layout === "SIMPLE") {
+    return (
+      <SimpleMenu
+        title={title}
+        subtitle={subtitle}
+        config={config}
+        category={simpleMenu ?? null}
+        currency={currency}
+        locale={locale}
+      />
+    );
+  }
+
   const items = categories.slice(0, config.limit || 6);
   if (items.length === 0) return null;
 
@@ -106,6 +128,122 @@ export function CategoriesSection({
         </RevealGroup>
       </div>
     </section>
+  );
+}
+
+/**
+ * Cardápio simples: a categoria principal como uma lista de preços, no formato
+ * de um cardápio impresso — nome, linha de condução até o preço e a descrição
+ * logo abaixo. Em duas colunas no computador, preenchendo de cima para baixo
+ * como se lê um cardápio de papel.
+ */
+function SimpleMenu({
+  title,
+  subtitle,
+  config,
+  category,
+  currency,
+  locale,
+}: {
+  title: string;
+  subtitle: string;
+  config: CategoriesConfig;
+  category: PublicCategory | null;
+  currency: string;
+  locale: string;
+}) {
+  if (!category || category.products.length === 0) return null;
+
+  return (
+    <section className={SECTION_PADDING}>
+      <div className="site-container">
+        <SectionHeading
+          eyebrow={category.name}
+          title={title}
+          subtitle={subtitle}
+        />
+
+        <Reveal>
+          {/* columns (e não grid) para a leitura descer a primeira coluna
+              inteira antes de passar para a segunda, como num cardápio. */}
+          <ul className="gap-x-14 lg:columns-2">
+            {category.products.map((product) => (
+              <li key={product.id} className="break-inside-avoid pb-7 last:pb-0">
+                <SimpleMenuItem
+                  product={product}
+                  currency={currency}
+                  locale={locale}
+                />
+              </li>
+            ))}
+          </ul>
+        </Reveal>
+
+        {config.buttonLabel ? (
+          <div className="mt-12 flex justify-center">
+            <SiteButton href="/cardapio">{config.buttonLabel}</SiteButton>
+          </div>
+        ) : null}
+      </div>
+    </section>
+  );
+}
+
+function SimpleMenuItem({
+  product,
+  currency,
+  locale,
+}: {
+  product: PublicProduct;
+  currency: string;
+  locale: string;
+}) {
+  const hasPromo = product.promoPrice !== null;
+
+  return (
+    <Link
+      href={`/cardapio/${product.slug}`}
+      className="group block rounded-[var(--card-radius)] outline-none transition-opacity focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] focus-visible:ring-offset-4"
+    >
+      <span className="flex items-baseline gap-3">
+        <span className="font-heading text-lg font-semibold leading-snug text-[var(--brand-text)] transition-colors group-hover:text-[var(--brand-primary)] sm:text-xl">
+          {product.name}
+        </span>
+
+        {product.soldOut ? (
+          <span className="shrink-0 rounded-full bg-[var(--brand-text)]/10 px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-[var(--brand-muted)]">
+            Esgotado
+          </span>
+        ) : null}
+
+        {/* A linha que liga o nome ao preço: ocupa o espaço que sobrar. */}
+        <span
+          aria-hidden
+          className="mx-1 min-w-6 flex-1 translate-y-[-0.3em] border-b border-dotted border-[var(--brand-text)]/25"
+        />
+
+        <span className="flex shrink-0 items-baseline gap-2 tabular-nums">
+          {hasPromo ? (
+            <span className="text-sm text-[var(--brand-muted)] line-through">
+              {formatCurrency(product.price, currency, locale)}
+            </span>
+          ) : null}
+          <span className="font-heading text-lg font-semibold text-[var(--brand-text)] sm:text-xl">
+            {formatCurrency(
+              hasPromo ? product.promoPrice : product.price,
+              currency,
+              locale,
+            )}
+          </span>
+        </span>
+      </span>
+
+      {product.shortDescription ? (
+        <span className="mt-1.5 block max-w-[46ch] text-sm leading-relaxed text-[var(--brand-muted)]">
+          {product.shortDescription}
+        </span>
+      ) : null}
+    </Link>
   );
 }
 

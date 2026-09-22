@@ -71,7 +71,16 @@ export type VideoConfig = {
   fullWidth: boolean;
 };
 
+/**
+ * Como a seção do cardápio aparece na página inicial:
+ *  - CARDS: vitrine com a foto de cada categoria;
+ *  - SIMPLE: lista de preços da categoria marcada como principal, no estilo
+ *    de um cardápio impresso (nome, linha de condução e preço).
+ */
+export type CategoriesLayout = "CARDS" | "SIMPLE";
+
 export type CategoriesConfig = {
+  layout: CategoriesLayout;
   limit: number;
   showDescription: boolean;
   buttonLabel: string;

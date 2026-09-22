@@ -14,7 +14,11 @@ import {
   SocialSection,
 } from "@/components/home/sections";
 import { ProductShowcase } from "@/components/menu/product-showcase";
-import { getActiveCategories, getFeaturedProducts } from "@/lib/data/menu";
+import {
+  getActiveCategories,
+  getFeaturedProducts,
+  getPrimaryCategoryMenu,
+} from "@/lib/data/menu";
 import { getActiveLocations } from "@/lib/data/content";
 import { getActiveSocialLinks } from "@/lib/data/settings";
 import { resolveOrderLink } from "@/lib/order";
@@ -47,8 +51,17 @@ export async function HomeSections({
 }) {
   const types = new Set(sections.map((section) => section.type));
 
-  const [categories, locations, socials] = await Promise.all([
+  // O "Cardápio simples" precisa dos produtos da categoria principal; a
+  // vitrine de categorias precisa só da lista de categorias.
+  const usaCardapioSimples = sections.some(
+    (section) =>
+      section.type === "CATEGORIES" &&
+      (section.config as CategoriesConfig).layout === "SIMPLE",
+  );
+
+  const [categories, simpleMenu, locations, socials] = await Promise.all([
     types.has("CATEGORIES") ? getActiveCategories() : Promise.resolve([]),
+    usaCardapioSimples ? getPrimaryCategoryMenu() : Promise.resolve(null),
     types.has("LOCATIONS") ? getActiveLocations() : Promise.resolve([]),
     types.has("SOCIAL") ? getActiveSocialLinks() : Promise.resolve([]),
   ]);
@@ -84,6 +97,9 @@ export async function HomeSections({
               subtitle={section.subtitle}
               config={section.config as CategoriesConfig}
               categories={categories}
+              simpleMenu={simpleMenu}
+              currency={settings.currency}
+              locale={settings.locale}
             />
           );
 

@@ -65,6 +65,7 @@ function uncategorizedGroup(products: PublicProduct[]): PublicCategory {
     imageUrl: null,
     imageAlt: "",
     active: true,
+    isPrimary: false,
     // Sempre por último, depois de todas as categorias de verdade.
     position: Number.MAX_SAFE_INTEGER,
     deletedAt: null,
@@ -159,6 +160,37 @@ export const getActiveCategories = cache(async (): Promise<Category[]> =>
       }),
     [],
   ),
+);
+
+/**
+ * Categoria exibida pelo "Cardápio simples" da página inicial, com os produtos
+ * publicados dela.
+ *
+ * Sem nenhuma categoria marcada como principal, cai na primeira categoria
+ * ativa: assim a seção continua mostrando alguma coisa em vez de sumir da
+ * página sem explicação.
+ */
+export const getPrimaryCategoryMenu = cache(
+  async (): Promise<PublicCategory | null> => {
+    const category = await safeQuery(
+      () =>
+        prisma.category.findFirst({
+          where: { active: true, deletedAt: null },
+          orderBy: [{ isPrimary: "desc" }, { position: "asc" }],
+          include: {
+            products: {
+              where: activeProductWhere,
+              orderBy: [{ position: "asc" }, { createdAt: "desc" }],
+              include: productInclude,
+            },
+          },
+        }),
+      null,
+    );
+
+    if (!category) return null;
+    return { ...category, products: category.products.map(toPublicProduct) };
+  },
 );
 
 export type FeaturedSource = "FEATURED" | "BEST_SELLER" | "NEW" | "CATEGORY";

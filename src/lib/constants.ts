@@ -119,6 +119,7 @@ export const VIDEO_DEFAULT: VideoConfig = {
 };
 
 export const CATEGORIES_DEFAULT: CategoriesConfig = {
+  layout: "CARDS",
   limit: 6,
   showDescription: true,
   buttonLabel: "Ver cardápio completo",

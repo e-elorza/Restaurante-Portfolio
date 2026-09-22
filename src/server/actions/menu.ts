@@ -120,7 +120,7 @@ export async function deleteCategoryAction(formData: FormData): Promise<void> {
     }),
     prisma.category.update({
       where: { id },
-      data: { deletedAt: new Date(), active: false },
+      data: { deletedAt: new Date(), active: false, isPrimary: false },
     }),
   ]);
 
@@ -130,6 +130,46 @@ export async function deleteCategoryAction(formData: FormData): Promise<void> {
     entity: "category",
     entityId: id,
     message: `Categoria "${category.name}" excluída`,
+  });
+
+  revalidateSite(["/admin/categorias"]);
+}
+
+/**
+ * Marca (ou desmarca) a categoria principal — a que o "Cardápio simples" da
+ * página inicial exibe. Só uma fica marcada por vez, então marcar uma desmarca
+ * a anterior na mesma transação.
+ */
+export async function setPrimaryCategoryAction(formData: FormData): Promise<void> {
+  const session = await requireActionSession();
+  const id = str(formData, "id");
+  if (!id) return;
+
+  const category = await prisma.category.findFirst({
+    where: { id, deletedAt: null },
+  });
+  if (!category) return;
+
+  const passaASerPrincipal = !category.isPrimary;
+
+  await prisma.$transaction([
+    prisma.category.updateMany({
+      where: { isPrimary: true },
+      data: { isPrimary: false },
+    }),
+    ...(passaASerPrincipal
+      ? [prisma.category.update({ where: { id }, data: { isPrimary: true } })]
+      : []),
+  ]);
+
+  await logActivity({
+    userId: session.userId,
+    action: "update",
+    entity: "category",
+    entityId: id,
+    message: passaASerPrincipal
+      ? `Categoria "${category.name}" definida como principal`
+      : `Categoria "${category.name}" deixou de ser a principal`,
   });
 
   revalidateSite(["/admin/categorias"]);

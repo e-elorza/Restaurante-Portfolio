@@ -287,6 +287,9 @@ model Category {
   imageUrl    String?
   imageAlt    String    @default("")
   active      Boolean   @default(true)
+  /// Categoria exibida pela seção "Cardápio simples" da página inicial.
+  /// Só uma categoria fica marcada por vez — quem marca uma desmarca as outras.
+  isPrimary   Boolean   @default(false)
   position    Int       @default(0)
   deletedAt   DateTime?
   createdAt   DateTime  @default(now())

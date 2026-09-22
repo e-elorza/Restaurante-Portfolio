@@ -2,10 +2,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const findManyCategory = vi.fn();
 const findManyProduct = vi.fn();
+const findFirstCategory = vi.fn();
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
-    category: { findMany: findManyCategory },
+    category: { findMany: findManyCategory, findFirst: findFirstCategory },
     product: { findMany: findManyProduct },
   },
   safeQuery: async <T,>(run: () => Promise<T>, fallback: T) => {
@@ -17,7 +18,9 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
-const { UNCATEGORIZED_ID, getMenu } = await import("@/lib/data/menu");
+const { UNCATEGORIZED_ID, getMenu, getPrimaryCategoryMenu } = await import(
+  "@/lib/data/menu"
+);
 
 type ProductOverrides = { name: string; categoryId?: string | null };
 
@@ -45,6 +48,7 @@ function category(name: string, products: ReturnType<typeof product>[]) {
     imageUrl: null,
     imageAlt: "",
     active: true,
+    isPrimary: false,
     position: 0,
     deletedAt: null,
     createdAt: new Date(0),
@@ -98,5 +102,43 @@ describe("getMenu", () => {
 
     const menu = await getMenu();
     expect(menu.map((item) => item.id)).toEqual(["Bebidas"]);
+  });
+});
+
+describe("getPrimaryCategoryMenu", () => {
+  beforeEach(() => {
+    findFirstCategory.mockReset();
+  });
+
+  it("pede a categoria marcada como principal antes das outras", async () => {
+    findFirstCategory.mockResolvedValue(
+      category("Hambúrgueres", [product({ name: "Brasa", categoryId: "Hambúrgueres" })]),
+    );
+
+    const menu = await getPrimaryCategoryMenu();
+    expect(menu?.name).toBe("Hambúrgueres");
+    expect(menu?.products.map((item) => item.name)).toEqual(["Brasa"]);
+
+    const args = findFirstCategory.mock.calls[0][0];
+    // A principal vem primeiro; sem nenhuma marcada, cai na primeira da ordem
+    // definida no painel — por isso a consulta nunca filtra por isPrimary.
+    expect(args.orderBy).toEqual([{ isPrimary: "desc" }, { position: "asc" }]);
+    expect(args.where).toMatchObject({ active: true, deletedAt: null });
+    expect(args.where.isPrimary).toBeUndefined();
+  });
+
+  it("só traz produtos publicados", async () => {
+    findFirstCategory.mockResolvedValue(category("Bebidas", []));
+
+    await getPrimaryCategoryMenu();
+    expect(findFirstCategory.mock.calls[0][0].include.products.where).toMatchObject({
+      active: true,
+      deletedAt: null,
+    });
+  });
+
+  it("devolve nulo quando não há nenhuma categoria ativa", async () => {
+    findFirstCategory.mockResolvedValue(null);
+    expect(await getPrimaryCategoryMenu()).toBeNull();
   });
 });
