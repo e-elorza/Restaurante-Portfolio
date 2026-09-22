@@ -38,7 +38,12 @@ export default async function HomePage() {
   );
 }
 
-/** Primeiro acesso: a Home ainda não tem nenhuma seção configurada. */
+/**
+ * Primeiro acesso: a Home ainda não tem nenhuma seção configurada.
+ *
+ * O texto é escrito para o cliente, não para o administrador: esta é uma
+ * página pública, então não mencionamos nem damos atalho para o painel.
+ */
 function EmptyHome({ name }: { name: string }) {
   return (
     <section className="flex min-h-[80svh] items-center bg-[var(--brand-secondary)] text-white">
@@ -46,15 +51,11 @@ function EmptyHome({ name }: { name: string }) {
         <p className="eyebrow mb-4 text-white/60">Bem-vindo</p>
         <h1 className="display-1 mx-auto max-w-3xl text-balance font-heading">{name}</h1>
         <p className="mx-auto mt-5 max-w-xl text-pretty text-white/70">
-          A página inicial ainda não foi montada. Entre no painel administrativo em
-          <span className="px-1 font-semibold text-white">/admin</span>
-          e adicione as seções que quiser exibir aqui.
+          Estamos preparando esta página. Enquanto isso, o cardápio completo já
+          está disponível.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <SiteButton href="/cardapio">Ver o cardápio</SiteButton>
-          <SiteButton href="/admin" variant="light">
-            Abrir o painel
-          </SiteButton>
         </div>
       </div>
     </section>

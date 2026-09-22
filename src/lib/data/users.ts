@@ -1,6 +1,7 @@
 import { cache } from "react";
+import type { Role } from "@prisma/client";
 
-import { prisma } from "@/lib/prisma";
+import { prisma, safeQuery } from "@/lib/prisma";
 
 /**
  * Estado do acesso ao painel, usado pela tela de login.
@@ -27,4 +28,35 @@ export async function countUsers(): Promise<number> {
   } catch {
     return 0;
   }
+}
+
+/** Tipo de acesso mostrado no painel. */
+export type AdminUser = {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+  active: boolean;
+  lastLoginAt: Date | null;
+  createdAt: Date;
+};
+
+/** Todos os acessos ao painel, do mais antigo para o mais novo. */
+export async function getAdminUsers(): Promise<AdminUser[]> {
+  return safeQuery(
+    () =>
+      prisma.user.findMany({
+        orderBy: { createdAt: "asc" },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          active: true,
+          lastLoginAt: true,
+          createdAt: true,
+        },
+      }),
+    [],
+  );
 }

@@ -45,28 +45,81 @@ const activeProductWhere = {
   deletedAt: null,
 } satisfies Prisma.ProductWhereInput;
 
-/** Categorias ativas com os produtos disponíveis, prontas para o site. */
-export const getMenu = cache(async (): Promise<PublicCategory[]> => {
-  const categories = await safeQuery(
-    () =>
-      prisma.category.findMany({
-        where: { active: true, deletedAt: null },
-        orderBy: { position: "asc" },
-        include: {
-          products: {
-            where: activeProductWhere,
-            orderBy: [{ position: "asc" }, { createdAt: "desc" }],
-            include: productInclude,
-          },
-        },
-      }),
-    [],
-  );
+/**
+ * Identificador da seção que recolhe os produtos publicados que ainda não
+ * foram colocados em nenhuma categoria. Ela não existe no banco: é montada na
+ * hora, só para que nenhum produto publicado fique invisível no cardápio.
+ */
+export const UNCATEGORIZED_ID = "sem-categoria";
+export const UNCATEGORIZED_SLUG = "sem-categoria";
+const UNCATEGORIZED_NAME = "Outros";
 
-  return categories.map((category) => ({
+/** Monta a seção virtual que acolhe os produtos sem categoria. */
+function uncategorizedGroup(products: PublicProduct[]): PublicCategory {
+  const now = new Date(0);
+  return {
+    id: UNCATEGORIZED_ID,
+    name: UNCATEGORIZED_NAME,
+    slug: UNCATEGORIZED_SLUG,
+    description: "",
+    imageUrl: null,
+    imageAlt: "",
+    active: true,
+    // Sempre por último, depois de todas as categorias de verdade.
+    position: Number.MAX_SAFE_INTEGER,
+    deletedAt: null,
+    createdAt: now,
+    updatedAt: now,
+    products,
+  };
+}
+
+/**
+ * Categorias ativas com os produtos disponíveis, prontas para o site.
+ *
+ * Produtos publicados que ficaram sem categoria — porque o administrador
+ * escolheu "Sem categoria" ou porque a categoria deles foi excluída — entram
+ * numa seção "Outros" no fim da página. Sem isso eles sumiriam do cardápio sem
+ * nenhum aviso, mesmo aparecendo como publicados no painel.
+ */
+export const getMenu = cache(async (): Promise<PublicCategory[]> => {
+  const [categories, orphans] = await Promise.all([
+    safeQuery(
+      () =>
+        prisma.category.findMany({
+          where: { active: true, deletedAt: null },
+          orderBy: { position: "asc" },
+          include: {
+            products: {
+              where: activeProductWhere,
+              orderBy: [{ position: "asc" }, { createdAt: "desc" }],
+              include: productInclude,
+            },
+          },
+        }),
+      [],
+    ),
+    safeQuery(
+      () =>
+        prisma.product.findMany({
+          where: { ...activeProductWhere, categoryId: null },
+          orderBy: [{ position: "asc" }, { createdAt: "desc" }],
+          include: productInclude,
+        }),
+      [],
+    ),
+  ]);
+
+  const menu: PublicCategory[] = categories.map((category) => ({
     ...category,
     products: category.products.map(toPublicProduct),
   }));
+
+  if (orphans.length > 0) {
+    menu.push(uncategorizedGroup(orphans.map(toPublicProduct)));
+  }
+
+  return menu;
 });
 
 /** Todos os produtos ativos, independentemente de categoria. */

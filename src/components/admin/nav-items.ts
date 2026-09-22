@@ -5,6 +5,8 @@ export type AdminNavItem = {
   description: string;
   icon: string;
   exact?: boolean;
+  /** Só aparece para quem tem acesso de administrador. */
+  adminOnly?: boolean;
 };
 
 export type AdminNavGroup = {
@@ -118,6 +120,13 @@ export const ADMIN_NAV: AdminNavGroup[] = [
         label: "Configurações",
         description: "Nome, contatos, WhatsApp e dados gerais.",
         icon: "Settings",
+      },
+      {
+        href: "/admin/usuarios",
+        label: "Usuários",
+        description: "Crie acessos ao painel para outras pessoas da equipe.",
+        icon: "Users",
+        adminOnly: true,
       },
       {
         href: "/admin/conta",

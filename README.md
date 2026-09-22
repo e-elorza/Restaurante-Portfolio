@@ -381,11 +381,18 @@ soltar) e respeito total a `prefers-reduced-motion`.
 | **Identidade → Aparência**| Cores, fontes, cards, botões, cabeçalho e rodapé               |
 | **Identidade → SEO**      | Título, descrição, imagem de compartilhamento e indexação      |
 | **Identidade → Redes**    | Instagram, TikTok, Facebook e outras redes                     |
-| **Configurações**         | Nome, contatos, WhatsApp, moeda e fuso horário                 |
+| **Sistema → Configurações** | Nome, contatos, WhatsApp, moeda e fuso horário               |
+| **Sistema → Usuários**    | Criar, desativar e remover acessos ao painel                   |
+| **Sistema → Minha conta** | Ver os próprios dados e trocar a senha                         |
 
 Dicas rápidas:
 
 - todo bloco da home pode ser **arrastado** pela alça à esquerda;
 - nada é excluído sem uma confirmação explícita;
 - o botão **“Visualizar site”**, no topo do painel, abre o site em outra aba;
-- a tela de **Aparência** mostra uma prévia em tempo real antes de salvar.
+- a tela de **Aparência** mostra uma prévia em tempo real antes de salvar;
+- em **Sistema → Usuários** você cria um acesso para cada pessoa da equipe;
+  o *Administrador* faz tudo, o *Editor* cuida do conteúdo mas não mexe nos
+  acessos. O painel nunca fica sem um administrador ativo;
+- um produto salvo **sem categoria** continua aparecendo no cardápio, numa
+  seção **“Outros”** no fim da página — nenhum item publicado fica invisível.

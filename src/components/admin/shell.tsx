@@ -20,13 +20,15 @@ import {
   Settings,
   Share2,
   UserRound,
+  Users,
   UtensilsCrossed,
   X,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { ADMIN_NAV } from "@/components/admin/nav-items";
+import { ADMIN_NAV, type AdminNavGroup } from "@/components/admin/nav-items";
 import { Button } from "@/components/ui/button";
+import type { SessionPayload } from "@/lib/auth/session";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   LayoutDashboard,
@@ -43,7 +45,17 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   Share2,
   Settings,
   UserRound,
+  Users,
 };
+
+/** Esconde do menu o que o tipo de acesso da pessoa não permite abrir. */
+function visibleNav(role: SessionPayload["role"]): AdminNavGroup[] {
+  if (role === "ADMIN") return ADMIN_NAV;
+  return ADMIN_NAV.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => !item.adminOnly),
+  })).filter((group) => group.items.length > 0);
+}
 
 function isActive(pathname: string, href: string, exact?: boolean) {
   if (exact) return pathname === href;
@@ -52,14 +64,17 @@ function isActive(pathname: string, href: string, exact?: boolean) {
 
 export function AdminShell({
   userName,
+  role,
   logout,
   children,
 }: {
   userName: string;
+  role: SessionPayload["role"];
   logout: () => Promise<void>;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const nav = React.useMemo(() => visibleNav(role), [role]);
   const [open, setOpen] = React.useState(false);
 
   // Fecha o menu lateral ao navegar, sem efeito colateral em useEffect.
@@ -70,19 +85,19 @@ export function AdminShell({
   }
 
   const currentLabel = React.useMemo(() => {
-    for (const group of ADMIN_NAV) {
+    for (const group of nav) {
       for (const item of group.items) {
         if (isActive(pathname, item.href, item.exact)) return item.label;
       }
     }
     return "Painel";
-  }, [pathname]);
+  }, [nav, pathname]);
 
   return (
     <div className="min-h-screen bg-background lg:grid lg:grid-cols-[264px_1fr]">
       {/* Barra lateral (computador) */}
       <aside className="sticky top-0 hidden h-screen flex-col border-r border-border bg-card lg:flex">
-        <SidebarContent pathname={pathname} />
+        <SidebarContent nav={nav} pathname={pathname} />
       </aside>
 
       {/* Menu lateral (celular e tablet) */}
@@ -95,7 +110,7 @@ export function AdminShell({
             className="absolute inset-0 bg-stone-950/50"
           />
           <div className="absolute left-0 top-0 flex h-full w-72 flex-col border-r border-border bg-card shadow-2xl">
-            <SidebarContent pathname={pathname} onClose={() => setOpen(false)} />
+            <SidebarContent nav={nav} pathname={pathname} onClose={() => setOpen(false)} />
           </div>
         </div>
       ) : null}
@@ -150,9 +165,11 @@ export function AdminShell({
 }
 
 function SidebarContent({
+  nav,
   pathname,
   onClose,
 }: {
+  nav: AdminNavGroup[];
   pathname: string;
   onClose?: () => void;
 }) {
@@ -178,7 +195,7 @@ function SidebarContent({
       </div>
 
       <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-5" aria-label="Menu do painel">
-        {ADMIN_NAV.map((group) => (
+        {nav.map((group) => (
           <div key={group.title}>
             <p className="px-2 pb-2 text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-subtle-foreground">
               {group.title}

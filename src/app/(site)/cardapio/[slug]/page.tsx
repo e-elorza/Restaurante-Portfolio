@@ -7,7 +7,7 @@ import { ChevronRight, Leaf, TriangleAlert } from "lucide-react";
 import { ProductShowcase } from "@/components/menu/product-showcase";
 import { SiteButton } from "@/components/site/blocks";
 import { Reveal } from "@/components/site/motion";
-import { getMenu, getProductBySlug } from "@/lib/data/menu";
+import { UNCATEGORIZED_ID, getMenu, getProductBySlug } from "@/lib/data/menu";
 import { isPageEnabled } from "@/lib/data/pages";
 import { getRestaurantSettings } from "@/lib/data/settings";
 import { resolveOrderLink } from "@/lib/order";
@@ -45,7 +45,7 @@ export default async function ProductPage({ params }: PageProps) {
 
   const menu = await getMenu();
   const related = menu
-    .find((category) => category.id === product.categoryId)
+    .find((category) => category.id === (product.categoryId ?? UNCATEGORIZED_ID))
     ?.products.filter((item) => item.id !== product.id)
     .slice(0, 3)
     .map((item) => ({

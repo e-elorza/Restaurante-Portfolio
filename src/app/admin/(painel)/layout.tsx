@@ -8,7 +8,7 @@ export default async function PainelLayout({
   const session = await requireSession();
 
   return (
-    <AdminShell userName={session.name} logout={logoutAction}>
+    <AdminShell userName={session.name} role={session.role} logout={logoutAction}>
       {children}
     </AdminShell>
   );

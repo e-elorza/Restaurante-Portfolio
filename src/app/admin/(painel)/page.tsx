@@ -45,7 +45,12 @@ async function getCounts() {
   );
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ erro?: string }>;
+}) {
+  const { erro } = await searchParams;
   const [counts, pages, activity, settings, siteEmpty] = await Promise.all([
     getCounts(),
     getPages(),
@@ -107,6 +112,16 @@ export default async function DashboardPage() {
           </Link>
         </Button>
       </PageHeader>
+
+      {erro === "permissao" ? (
+        <p
+          role="alert"
+          className="mb-4 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900"
+        >
+          Essa área é só para administradores. Peça a quem administra o
+          painel para liberar o seu acesso.
+        </p>
+      ) : null}
 
       {siteEmpty ? <DemoContentCard /> : null}
 

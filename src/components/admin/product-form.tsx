@@ -99,14 +99,14 @@ export function ProductForm({
               <Field
                 label="Categoria"
                 htmlFor="categoryId"
-                hint="Em qual seção do cardápio este item aparece."
+                hint="Em qual seção do cardápio este item aparece. Sem categoria, ele entra numa seção “Outros” no fim da página."
               >
                 <Select
                   id="categoryId"
                   name="categoryId"
                   defaultValue={product?.categoryId ?? ""}
                 >
-                  <option value="">Sem categoria</option>
+                  <option value="">Sem categoria (aparece em “Outros”)</option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}

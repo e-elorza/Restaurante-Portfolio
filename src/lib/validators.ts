@@ -113,6 +113,29 @@ export const firstAdminSchema = z
     path: ["confirmPassword"],
   });
 
+/** Criação de um novo acesso ao painel, feita por quem já está logado. */
+export const newUserSchema = z
+  .object({
+    name: requiredText("o nome da pessoa", 80),
+    email: z
+      .string()
+      .trim()
+      .min(1, "Informe um e-mail.")
+      .email("Informe um e-mail válido."),
+    role: z.enum(["ADMIN", "EDITOR"]).default("ADMIN"),
+    password: z
+      .string()
+      .min(
+        PASSWORD_MIN_LENGTH,
+        `A senha precisa ter pelo menos ${PASSWORD_MIN_LENGTH} caracteres.`,
+      ),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "As senhas não são iguais.",
+    path: ["confirmPassword"],
+  });
+
 export const changePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, "Informe a senha atual."),
