@@ -395,4 +395,21 @@ Dicas rápidas:
   o *Administrador* faz tudo, o *Editor* cuida do conteúdo mas não mexe nos
   acessos. O painel nunca fica sem um administrador ativo;
 - um produto salvo **sem categoria** continua aparecendo no cardápio, numa
-  seção **“Outros”** no fim da página — nenhum item publicado fica invisível.
+  seção **“Outros”** no fim da página — nenhum item publicado fica invisível;
+- para encher o cardápio de uma vez, sem cadastrar item por item, use
+  `npm run cardapio:seed` (veja abaixo).
+
+### Preencher o cardápio de uma vez
+
+`scripts/seed-cardapio.mjs` cadastra uma lista de hambúrgueres e entradas
+direto no banco. Edite a lista dentro do arquivo e rode:
+
+```bash
+npm run cardapio:seed                     # usa a DATABASE_URL do .env
+DATABASE_URL="postgresql://..." npm run cardapio:seed   # outro banco
+```
+
+O script é **aditivo e idempotente**: identifica cada item pelo `slug`, pula
+os que já existem e nunca apaga nem altera o que você cadastrou pelo painel.
+O campo `imageUrl` de cada produto pode ficar vazio — a foto é enviada depois
+pelo painel, em **Produtos → o item → Foto principal**.
