@@ -204,11 +204,16 @@ export function AboutSection({
   return (
     <section className={SECTION_PADDING}>
       <div className="site-container">
-        <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+        <div className="grid items-center gap-10 lg:grid-cols-2 lg:items-stretch lg:gap-16">
           {config.imageUrl ? (
             <Reveal
               className={cn(
-                "relative aspect-[4/5] overflow-hidden rounded-[var(--card-radius)] shadow-card sm:aspect-[3/2] lg:aspect-[4/5]",
+                "relative aspect-[4/5] overflow-hidden rounded-[var(--card-radius)] shadow-card sm:aspect-[3/2]",
+                // No computador a foto deixa de ter proporção fixa e passa a
+                // acompanhar a altura do texto ao lado. O piso evita uma faixa
+                // fina quando o texto é curto; o teto evita que ela volte a
+                // virar uma torre quando alguém escreve muitos parágrafos.
+                "lg:aspect-auto lg:h-full lg:max-h-[30rem] lg:min-h-[22rem]",
                 config.imagePosition === "RIGHT" && "lg:order-2",
               )}
             >
