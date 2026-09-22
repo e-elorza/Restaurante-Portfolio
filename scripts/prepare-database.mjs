@@ -99,3 +99,36 @@ if (resultado.status !== 0) {
 }
 
 console.log("✔ Banco de dados atualizado.\n");
+
+// ---------------------------------------------------------------------------
+// Cardápio inicial (opcional)
+// ---------------------------------------------------------------------------
+
+/**
+ * Com SEED_CARDAPIO=1 nas variáveis de ambiente, o build também cadastra a
+ * lista de produtos de `scripts/seed-cardapio.mjs`. Serve para encher o
+ * cardápio de um site recém-publicado sem precisar de linha de comando.
+ *
+ * O script é aditivo e idempotente: pula os produtos que já existem e nunca
+ * altera o que foi cadastrado pelo painel. Por isso é seguro mesmo que o build
+ * seja repetido. Ainda assim, remova a variável depois de usá-la — ela só faz
+ * sentido uma vez.
+ */
+if (process.env.SEED_CARDAPIO === "1") {
+  console.log("→ SEED_CARDAPIO=1: cadastrando os produtos do cardápio...");
+
+  const cardapio = spawnSync("node", ["scripts/seed-cardapio.mjs"], {
+    stdio: "inherit",
+    env: process.env,
+    shell: process.platform === "win32",
+  });
+
+  if (cardapio.status !== 0) {
+    aviso(
+      [
+        "Não foi possível cadastrar os produtos do cardápio.",
+        "O build continua normalmente — nada foi alterado no banco.",
+      ].join("\n   "),
+    );
+  }
+}

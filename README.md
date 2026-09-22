@@ -413,3 +413,7 @@ O script é **aditivo e idempotente**: identifica cada item pelo `slug`, pula
 os que já existem e nunca apaga nem altera o que você cadastrou pelo painel.
 O campo `imageUrl` de cada produto pode ficar vazio — a foto é enviada depois
 pelo painel, em **Produtos → o item → Foto principal**.
+
+Sem acesso à linha de comando? Crie a variável de ambiente `SEED_CARDAPIO=1`
+na Vercel e refaça o deploy: o build cadastra os produtos sozinho, logo depois
+das migrations. Remova a variável em seguida — ela só é útil uma vez.
